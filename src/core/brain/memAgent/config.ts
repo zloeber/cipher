@@ -97,6 +97,41 @@ export const AgentConfigSchema = z
 			})
 			.describe('Session management configuration'),
 		eventPersistence: EventPersistenceConfigSchema.optional(),
+		memoryProfile: z
+			.object({
+				default: z.string(),
+				profiles: z.array(
+					z.object({
+						name: z.string(),
+						description: z.string(),
+						prompts: z.object({
+							system: z.string(),
+							decision: z.string(),
+						}),
+						tools: z.record(
+							z.object({
+								description: z.string(),
+								parameters: z.record(z.any()),
+							})
+						),
+						skipPatterns: z.array(z.object({
+							pattern: z.string(),
+							flags: z.string(),
+						})),
+						keyPatterns: z.array(z.object({
+							pattern: z.string(),
+							flags: z.string().optional(),
+						})),
+						commonPatterns: z.array(z.object({
+							pattern: z.string(),
+							flags: z.string().optional(),
+						})),
+						wordPatterns: z.array(z.string()),
+						domainTags: z.record(z.string()),
+					})
+				),
+			})
+			.optional(),
 	})
 	.strict()
 	.describe('Main configuration for an agent, including its LLM and server connections');
