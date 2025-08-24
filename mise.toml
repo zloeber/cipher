@@ -1,0 +1,9 @@
+[tools]
+task = "latest"
+ollama = "latest"
+npm = "latest"
+gh = "latest"
+gitleaks = "latest"
+node = "20.18.1"
+pnpm = "latest"
+#"npm:@byterover/cipher" = "latest"
