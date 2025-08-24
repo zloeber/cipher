@@ -100,6 +100,7 @@ export const AgentConfigSchema = z
 		memoryProfile: z
 			.object({
 				default: z.string(),
+				assigned: z.string().optional(),
 				profiles: z.array(
 					z.object({
 						name: z.string(),
