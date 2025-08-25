@@ -159,7 +159,6 @@ systemPrompt:
     - Reasoning through programming challenges
 memoryProfile:
   assigned: default
-  default: default
   profiles:
     - name: default
       description: Default memory profile for general programming knowledge and decision retention.

@@ -8,7 +8,7 @@ export const AgentCardSchema = z
 		description: z
 			.string()
 			.default(
-				'cipher is an AI assistant capable of store valuable software development knowledge for your  vibe coding agents'
+				'cipher is an AI assistant capable of store valuable software development knowledge for your vibe coding agents'
 			),
 		provider: z
 			.object({
@@ -55,6 +55,52 @@ export const EventPersistenceConfigSchema = z.object({
 	retentionDays: z.number().optional(),
 	filePath: z.string().optional(),
 });
+export const MemoryProfileSchema = z.object({
+	name: z.string().default('default'),
+	description: z.string().default('Default memory profile'),
+	prompts: z.object({
+		system: z.string().default(`You analyze programming knowledge facts and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
+
+Process only significant technical content (concepts, code details, patterns, implementations). Skip personal or trivial content.
+
+Consider:
+1) Technical relevance and value
+2) Semantic similarity/overlap
+3) Recency and contextual relevance
+4) Quality and completeness
+5) Conversation context and needs
+6) Concrete code/pattern details
+
+Rules:
+- ADD: New, unique technical knowledge
+- UPDATE: Improves/corrects existing technical knowledge
+- DELETE: Outdated/incorrect/contradictory information
+- NONE: Duplicate, already covered, or non-significant
+
+Always preserve full code blocks/commands/patterns exactly as given.`
+		)
+	}),
+	tools: z.record(
+		z.object({
+			description: z.string(),
+			parameters: z.record(z.any()),
+		})
+	),
+	skipPatterns: z.array(z.object({
+		pattern: z.string(),
+		flags: z.string(),
+	})),
+	keyPatterns: z.array(z.object({
+		pattern: z.string(),
+		flags: z.string().optional(),
+	})),
+	commonPatterns: z.array(z.object({
+		pattern: z.string(),
+		flags: z.string().optional(),
+	})),
+	wordPatterns: z.array(z.string()),
+	domainTags: z.record(z.string()),
+});
 export const AgentConfigSchema = z
 	.object({
 		agentCard: AgentCardSchema.describe('Configuration for the agent card').optional(),
@@ -99,15 +145,13 @@ export const AgentConfigSchema = z
 		eventPersistence: EventPersistenceConfigSchema.optional(),
 		memoryProfile: z
 			.object({
-				default: z.string(),
-				assigned: z.string().optional(),
+				assigned: z.string().optional().default('default'),
 				profiles: z.array(
 					z.object({
 						name: z.string(),
 						description: z.string(),
 						prompts: z.object({
-							system: z.string(),
-							decision: z.string(),
+							system: z.string()
 						}),
 						tools: z.record(
 							z.object({
