@@ -21,56 +21,35 @@ function isSignificantKnowledge2(content: string, memoryProfile: any): boolean {
   }
 
   const text = content.toLowerCase().trim();
-
-  // Skip trivial tool results and non-technical content
-  // const skipPatterns = [
-  //   // Personal information and identity
-  //   /\b(my name|user['']?s? name|find my name|search.*name|who am i|what['']?s my name)\b/i,
-  //   /\b(personal|profile|identity|username|login|password|email|address|phone)\b/i,
-
-  //   // Trivial search queries without technical context
-  //   /^(user:|assistant:)?\s*(search|find|look|what|where|who|when|why|how)\s+(is|are|was|were|do|does|did|can|could|should|would|will|my|the|a|an)\b/i,
-
-  //   // Simple greetings and social interactions
-  //   /^(user:|assistant:)?\s*(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\b/i,
-
-  //   // Tool results with no meaningful content
-  //   /^(cipher_memory_search|memory_search):\s*(found|completed|no results|error)/i,
-
-  //   // Generic status messages
-  //   /^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\b/i,
-
-  //   // Simple yes/no or acknowledgment responses
-  //   /^(user:|assistant:)?\s*(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\s*[.!?]?\s*$/i,
-  // ];
+  const profile = memoryProfile || {}; // Use an empty object as default
 
   // Convert to RegExp objects
-  const skipPatterns = (memoryProfile as any).skipPatterns
-	? (memoryProfile as any).skipPatterns.map(
+  const skipPatterns = (profile as any).skipPatterns
+	? (profile as any).skipPatterns.map(
 		({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
 	)
 	: [];
 
-  if (skipPatterns.some(rx => rx.test(text))) {
+  if (skipPatterns.some((rx: any) => rx.test(text))) {
     return false;
   }
 
 
   // key content
-  const keyPatterns = (memoryProfile as any).keyPatterns
-	? (memoryProfile as any).keyPatterns.map(
+  const keyPatterns = (profile as any).keyPatterns
+	? (profile as any).keyPatterns.map(
 		({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
 	)
 	: [];
 
   // Check if content contains key patterns
-  if (keyPatterns.some(rx => rx.test(text))) {
+  if (keyPatterns.some((rx: any) => rx.test(text))) {
     return true;
   }
 
   // Check for code-like patterns (contains special characters typical in code)
-  const commonPatterns = (memoryProfile as any).commonPatterns
-	? (memoryProfile as any).commonPatterns.map(
+  const commonPatterns = (profile as any).commonPatterns
+	? (profile as any).commonPatterns.map(
 		({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
 	)
 	: [];
@@ -88,7 +67,7 @@ function isSignificantKnowledge2(content: string, memoryProfile: any): boolean {
   }
 
   // Check technical words density
-  const wordPatterns = (memoryProfile as any).wordPatterns;
+  const wordPatterns = (profile as any).wordPatterns || [];
 
   const words = text.split(/\s+/);
   const wordCount = words.filter(word =>
@@ -106,18 +85,9 @@ function isSignificantKnowledge2(content: string, memoryProfile: any): boolean {
     return false;
   }
 
-  // //Check for programming-specific patterns that indicate technical content
-  // //Should be covered already in keyPatterns
-  // const programmingKeywords =
-  //   /\b(code|coding|program|programming|develop|development|software|hardware|tech|technical|digital|computer|computing|algorithm|logic|syntax|semantic|compile|runtime|execute|debug|test|deploy|implement|configure|setup|install|upgrade|migrate|scale|optimize|refactor)\b/i;
-
-  // if (programmingKeywords.test(text)) {
-  //   return true;
-  // }
-
   // Optionally use memoryProfile for additional filtering (example: allowedDomains)
-  if (memoryProfile?.allowedDomains && Array.isArray(memoryProfile.allowedDomains)) {
-    for (const domain of memoryProfile.allowedDomains) {
+  if (profile?.allowedDomains && Array.isArray(profile.allowedDomains)) {
+    for (const domain of profile.allowedDomains) {
       if (text.includes(domain.toLowerCase())) {
         return true;
       }
@@ -128,224 +98,6 @@ function isSignificantKnowledge2(content: string, memoryProfile: any): boolean {
   return false;
 }
 
-/**
- * Determines if a piece of content is significant enough to be extracted as knowledge
- * Focuses on programming knowledge, concepts, technical details, and implementation information
- * while filtering out personal information, trivial content, and non-technical interactions
- */
-function isSignificantKnowledge(content: string): boolean {
-	if (!content || content.trim().length === 0) {
-		return false;
-	}
-
-	const text = content.toLowerCase().trim();
-
-	// Skip trivial tool results and non-technical content
-	const skipPatterns = [
-		// Personal information and identity
-		/\b(my name|user['']?s? name|find my name|search.*name|who am i|what['']?s my name)\b/i,
-		/\b(personal|profile|identity|username|login|password|email|address|phone)\b/i,
-
-		// Trivial search queries without technical context
-		/^(user:|assistant:)?\s*(search|find|look|what|where|who|when|why|how)\s+(is|are|was|were|do|does|did|can|could|should|would|will|my|the|a|an)\b/i,
-
-		// Simple greetings and social interactions
-		/^(user:|assistant:)?\s*(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\b/i,
-
-		// Tool results with no meaningful content
-		/^(cipher_memory_search|memory_search):\s*(found|completed|no results|error)/i,
-
-		// Generic status messages
-		/^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\b/i,
-
-		// Simple yes/no or acknowledgment responses
-		/^(user:|assistant:)?\s*(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\s*[.!?]?\s*$/i,
-	];
-
-	// Check if content matches skip patterns
-	for (const pattern of skipPatterns) {
-		if (pattern.test(text)) {
-			return false;
-		}
-	}
-
-	// Prioritize technical and programming content
-	const technicalPatterns = [
-		// Programming concepts and patterns
-		/\b(function|method|class|interface|module|library|framework|algorithm|data structure|design pattern)\b/i,
-		/\b(variable|constant|parameter|argument|return|async|await|promise|callback|closure|scope)\b/i,
-		/\b(loop|iteration|recursion|condition|exception|error handling|debugging|testing|optimization)\b/i,
-
-		// Code elements and syntax
-		/\b(import|export|require|include|package|dependency|api|endpoint|request|response)\b/i,
-		/\b(database|query|sql|nosql|schema|table|index|transaction|orm|migration)\b/i,
-		/\b(git|version control|commit|merge|branch|pull request|repository|deployment)\b/i,
-
-		// Technical implementations
-		/\b(implements?|extends?|inherits?|overrides?|polymorphism|encapsulation|abstraction)\b/i,
-		/\b(sort|search|filter|map|reduce|transform|parse|serialize|encrypt|decrypt)\b/i,
-		/\b(authentication|authorization|security|validation|sanitization|middleware)\b/i,
-
-		// Code blocks and technical syntax
-		/```[\s\S]*```/,
-		/`[^`]+`/,
-		/\$[a-zA-Z_][a-zA-Z0-9_]*/, // Shell variables
-		/\b(npm|yarn|pip|composer|cargo|go get|mvn|gradle)\b/i,
-
-		// File and system operations
-		/\b(file|directory|path|config|environment|server|client|host|port|url|http|https|ssl|tls)\b/i,
-		/\b(dockerfile|docker|container|kubernetes|cloud|aws|azure|gcp|ci\/cd|pipeline)\b/i,
-
-		// Programming languages and technologies
-		/\b(javascript|typescript|python|java|c\+\+|c#|rust|go|php|ruby|swift|kotlin|scala|r)\b/i,
-		/\b(react|vue|angular|node|express|django|flask|spring|rails|laravel|fastapi)\b/i,
-		/\b(html|css|scss|sass|less|bootstrap|tailwind|webpack|vite|rollup|babel|eslint)\b/i,
-
-		// Error messages and stack traces with technical context
-		/\b(error|exception|traceback|stack trace|compilation|syntax error|runtime error|type error)\b/i,
-
-		// Technical explanations and problem-solving
-		/\b(solution|approach|implementation|technique|strategy|pattern|best practice|optimization)\b/i,
-		/\b(performance|scalability|maintainability|refactoring|code review|documentation)\b/i,
-	];
-
-	// Check if content contains technical patterns
-	for (const pattern of technicalPatterns) {
-		if (pattern.test(text)) {
-			return true;
-		}
-	}
-
-	// Check for code-like patterns (contains special characters typical in code)
-	const codePatterns = [
-		/[{}[\]()]/, // Brackets and parentheses
-		/[=><!&|]/, // Operators
-		/[;:,]/, // Punctuation common in code
-		/\w+\.\w+/, // Dot notation
-		/\w+\(\)/, // Function calls
-		/\/\*[\s\S]*?\*\/|\/\/.*$/m, // Comments
-	];
-
-	let codePatternMatches = 0;
-	for (const pattern of codePatterns) {
-		if (pattern.test(text)) {
-			codePatternMatches++;
-		}
-	}
-
-	// If multiple code patterns match, consider it significant
-	if (codePatternMatches >= 2) {
-		return true;
-	}
-
-	// Check for technical words density
-	const technicalWords = [
-		'api',
-		'sdk',
-		'cli',
-		'gui',
-		'ui',
-		'ux',
-		'ide',
-		'editor',
-		'compiler',
-		'interpreter',
-		'runtime',
-		'virtual',
-		'machine',
-		'container',
-		'image',
-		'build',
-		'deploy',
-		'release',
-		'version',
-		'update',
-		'patch',
-		'bug',
-		'feature',
-		'enhancement',
-		'issue',
-		'ticket',
-		'workflow',
-		'process',
-		'pipeline',
-		'automation',
-		'script',
-		'batch',
-		'cron',
-		'job',
-		'service',
-		'microservice',
-		'monolith',
-		'architecture',
-		'pattern',
-		'design',
-		'system',
-		'network',
-		'protocol',
-		'tcp',
-		'udp',
-		'http',
-		'https',
-		'ssl',
-		'tls',
-		'dns',
-		'cdn',
-		'cache',
-		'redis',
-		'memcached',
-		'session',
-		'cookie',
-		'token',
-		'jwt',
-		'oauth',
-		'auth',
-		'encrypt',
-		'decrypt',
-		'hash',
-		'salt',
-		'key',
-		'certificate',
-		'public',
-		'private',
-		'binary',
-		'ascii',
-		'unicode',
-		'utf8',
-		'base64',
-		'hex',
-		'decimal',
-		'octal',
-		'buffer',
-	];
-
-	const words = text.split(/\s+/);
-	const technicalWordCount = words.filter(word =>
-		technicalWords.includes(word.replace(/[^\w]/g, ''))
-	).length;
-
-	// If more than 10% of words are technical, consider it significant
-	const technicalDensity = technicalWordCount / words.length;
-	if (technicalDensity > 0.1 && words.length > 5) {
-		return true;
-	}
-
-	// Check minimum length and complexity
-	if (text.length < 20) {
-		return false;
-	}
-
-	// Check for programming-specific patterns that indicate technical content
-	const programmingKeywords =
-		/\b(code|coding|program|programming|develop|development|software|hardware|tech|technical|digital|computer|computing|algorithm|logic|syntax|semantic|compile|runtime|execute|debug|test|deploy|implement|configure|setup|install|upgrade|migrate|scale|optimize|refactor)\b/i;
-
-	if (programmingKeywords.test(text)) {
-		return true;
-	}
-
-	// Default to false for non-technical content
-	return false;
-}
 
 /**
  * Determines if a message is a retrieved result from search tools or knowledge graph
@@ -639,7 +391,8 @@ export const extractAndOperateMemoryTool: InternalTool = {
 					});
 					return false;
 				}
-				const isSignificant = isSignificantKnowledge(fact);
+				const memoryProfile = context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
+				const isSignificant = isSignificantKnowledge2(fact, memoryProfile);
 				if (!isSignificant) {
 					logger.debug('ExtractAndOperateMemory: Skipping non-significant fact', {
 						factPreview: fact.substring(0, 100) + (fact.length > 100 ? '...' : ''),

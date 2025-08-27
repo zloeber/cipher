@@ -11,6 +11,7 @@ import type { EmbeddingManager } from '../embedding/index.js';
 import type { VectorStoreManager } from '../../vector_storage/index.js';
 import type { ILLMService } from '../llm/index.js';
 import type { KnowledgeGraphManager } from '../../knowledge_graph/manager.js';
+import type { MemAgentStateManager } from '../memAgent/state-manager.js';
 
 /**
  * Categories for organizing internal tools
@@ -183,6 +184,7 @@ export interface InternalToolContext {
 		 * Knowledge graph manager for graph operations
 		 */
 		knowledgeGraphManager?: KnowledgeGraphManager;
+		stateManager?: MemAgentStateManager;
 	};
 
 	/**

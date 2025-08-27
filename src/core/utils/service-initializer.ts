@@ -806,6 +806,7 @@ export async function createAgentServices(
 		vectorStoreManager,
 		llmService,
 		knowledgeGraphManager,
+		stateManager,
 	};
 
 	if (embeddingEnabled) {

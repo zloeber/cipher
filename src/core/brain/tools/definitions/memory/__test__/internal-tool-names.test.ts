@@ -262,7 +262,7 @@ describe('extractAndOperateMemoryTool interaction parameter schema', () => {
 		const args = {
 			interaction: 'Fallback test when embedding is missing',
 		};
-		const contextWithoutEmbedding = {
+				const contextWithoutEmbedding = {
 			services: {
 				embeddingManager: null,
 				vectorStoreManager: null,
