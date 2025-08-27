@@ -13,10 +13,10 @@ mcpServers: {}
 
 # Choose ONLY ONE of the following LLM providers
 llm:
-  provider: openai
-  model: gpt-4.1-mini
-  apiKey: $OPENAI_API_KEY
-  maxIterations: 50
+  # provider: openai
+  # model: gpt-4.1-mini
+  # apiKey: $OPENAI_API_KEY
+  # maxIterations: 50
 
   # provider: gemini
   # model: gemini-2.5-flash
@@ -60,10 +60,10 @@ llm:
 #     deploymentName: gpt-4o-mini  # Optional, defaults to model name
 
 # --- Ollama LLM Configuration (Sample, Commented Out) ---
-  # provider: ollama
-  # model: qwen3:8b      # Use the model you downloaded
-  # maxIterations: 50
-  # baseURL: $OLLAMA_BASE_URL
+  provider: ollama
+  model: qwen3:8b      # Use the model you downloaded
+  maxIterations: 50
+  baseURL: $OLLAMA_BASE_URL
 
 # --- LM Studio LLM Configuration (Sample, Commented Out) ---
   # provider: lmstudio
@@ -72,12 +72,12 @@ llm:
   # baseURL: $LMSTUDIO_BASE_URL
 
 # Embedding configuration: ONLY ONE of the following
-OpenAI:
+#OpenAI:
 
-embedding:
-  type: openai
-  model: text-embedding-3-small
-  apiKey: $OPENAI_API_KEY
+#embedding:
+  # type: openai
+  # model: text-embedding-3-small
+  # apiKey: $OPENAI_API_KEY
 
 # Gemini:
 # embedding:
@@ -86,11 +86,11 @@ embedding:
 #   apiKey: $GEMINI_API_KEY
 
 # Ollama:
-# embedding:
-#   type: ollama
-#   model: mxbai-embed-large
-#   baseUrl: $OLLAMA_BASE_URL
-#   dimensions: 1024
+embedding:
+  type: ollama
+  model: mxbai-embed-large
+  baseUrl: $OLLAMA_BASE_URL
+  dimensions: 1024
 
 # LM Studio:
 # embedding:
@@ -151,12 +151,10 @@ embedding:
 systemPrompt:
   enabled: true
   content: |
-    You are an AI programming assistant focused on coding and reasoning tasks. You excel at:
-    - Writing clean, efficient code
-    - Debugging and problem-solving
-    - Code review and optimization
-    - Explaining complex technical concepts
-    - Reasoning through programming challenges
+    You are a highly intelligent and capable AI game master, specializing in managing interactive novel campaigns.
+    - Tracking all interactions
+    - Building compelling narratives
+    - Managing game mechanics, levels, character choices, and world states
 
 memoryProfile:
   name: game_master

@@ -5,81 +5,81 @@
 # - http://localhost:5540 - redisinsight (ui)
 
 services:
-  cipher:
-    image: cipher
-    build:
-      context: ./
-      dockerfile: Dockerfile.cipher
-    container_name: cipher
-    restart: unless-stopped
-    environment:
-      - NODE_ENV=dev
-      - CIPHER_LOG_LEVEL=info
-      - REDACT_SECRETS=true
-      - VECTOR_STORE_HOST=qdrant
-      - VECTOR_STORE_PORT=6333
-      - VECTOR_STORE_URL=http://qdrant:6333
-      - VECTOR_STORE_COLLECTION=knowledge_memory
-      - VECTOR_STORE_DIMENSION=1536
-      - VECTOR_STORE_DISTANCE=Cosine
-      - VECTOR_STORE_ON_DISK=true
-      - STORAGE_CACHE_TYPE=redis
-      - STORAGE_CACHE_HOST=redis
-      - STORAGE_CACHE_PORT=6379
-      - STORAGE_CACHE_PASSWORD=
-      - STORAGE_CACHE_DATABASE=0
-      - STORAGE_DATABASE_TYPE=postgres
-      - STORAGE_DATABASE_HOST=postgres
-      - STORAGE_DATABASE_PORT=5432
-      - STORAGE_DATABASE_NAME=cipher_db
-      - STORAGE_DATABASE_USER=admin
-      - STORAGE_DATABASE_PASSWORD=secret
-      - STORAGE_DATABASE_SSL=false
-      - STORAGE_DATABASE_PATH=/app/.cipher/data
-      #CIPHER_PG_ADMIN: ${CIPHER_PG_ADMIN:-cipher}
-      #CIPHER_PG_PASSWORD: ${CIPHER_PG_PASSWORD:-secret_cipher}
-      - CIPHER_PG_URL=postgresql://admin:secret@postgres:5432/cipher_db
-      - OLLAMA_MODEL=${OLLAMA_MODEL:-gpt-oss:latest}
-      - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-mxbai-embed-large}
-      - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://192.168.1.204:11434}
-      - PGDATABASE=cipher_db
-    volumes:
-      - ./data/cipher:/app/.cipher/data
-    ports:
-      - 3000:3000
-      - 3001:3001
-    command:
-      [
-        'sh',
-        '-c',
-        "node dist/src/app/index.cjs --mode mcp --host 0.0.0.0 --agent /app/memAgent/cipher-local.yml --mcp-transport-type streamable-http --mcp-port ${PORT:-3000}"
-      ]
-    configs:
-      - source: cipher_config
-        target: /app/memAgent/cipher-local.yml
-    healthcheck:
-      test:
-        [
-          'CMD',
-          'sh',
-          '-c',
-          'wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1',
-        ]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
-    depends_on:
-      postgres-init:
-        condition: service_completed_successfully
-      postgres:
-        condition: service_healthy
-      qdrant:
-        condition: service_healthy
-      redis:
-        condition: service_healthy
-      neo4j:
-        condition: service_healthy
+  # cipher:
+  #   image: cipher
+  #   build:
+  #     context: ./
+  #     dockerfile: Dockerfile.cipher
+  #   container_name: cipher
+  #   restart: unless-stopped
+  #   environment:
+  #     - NODE_ENV=dev
+  #     - CIPHER_LOG_LEVEL=info
+  #     - REDACT_SECRETS=true
+  #     - VECTOR_STORE_HOST=qdrant
+  #     - VECTOR_STORE_PORT=6333
+  #     - VECTOR_STORE_URL=http://qdrant:6333
+  #     - VECTOR_STORE_COLLECTION=knowledge_memory
+  #     - VECTOR_STORE_DIMENSION=1536
+  #     - VECTOR_STORE_DISTANCE=Cosine
+  #     - VECTOR_STORE_ON_DISK=true
+  #     - STORAGE_CACHE_TYPE=redis
+  #     - STORAGE_CACHE_HOST=redis
+  #     - STORAGE_CACHE_PORT=6379
+  #     - STORAGE_CACHE_PASSWORD=
+  #     - STORAGE_CACHE_DATABASE=0
+  #     - STORAGE_DATABASE_TYPE=postgres
+  #     - STORAGE_DATABASE_HOST=postgres
+  #     - STORAGE_DATABASE_PORT=5432
+  #     - STORAGE_DATABASE_NAME=cipher_db
+  #     - STORAGE_DATABASE_USER=admin
+  #     - STORAGE_DATABASE_PASSWORD=secret
+  #     - STORAGE_DATABASE_SSL=false
+  #     - STORAGE_DATABASE_PATH=/app/.cipher/data
+  #     #CIPHER_PG_ADMIN: ${CIPHER_PG_ADMIN:-cipher}
+  #     #CIPHER_PG_PASSWORD: ${CIPHER_PG_PASSWORD:-secret_cipher}
+  #     - CIPHER_PG_URL=postgresql://admin:secret@postgres:5432/cipher_db
+  #     - OLLAMA_MODEL=${OLLAMA_MODEL:-gpt-oss:latest}
+  #     - OLLAMA_EMBEDDING_MODEL=${OLLAMA_EMBEDDING_MODEL:-mxbai-embed-large}
+  #     - OLLAMA_BASE_URL=${OLLAMA_BASE_URL:-http://192.168.1.204:11434}
+  #     - PGDATABASE=cipher_db
+  #   volumes:
+  #     - ./data/cipher:/app/.cipher/data
+  #   ports:
+  #     - 3000:3000
+  #     - 3001:3001
+  #   command:
+  #     [
+  #       'sh',
+  #       '-c',
+  #       "node dist/src/app/index.cjs --mode mcp --host 0.0.0.0 --agent /app/memAgent/cipher-local.yml --mcp-transport-type streamable-http --mcp-port ${PORT:-3000}"
+  #     ]
+  #   configs:
+  #     - source: cipher_config
+  #       target: /app/memAgent/cipher-local.yml
+  #   healthcheck:
+  #     test:
+  #       [
+  #         'CMD',
+  #         'sh',
+  #         '-c',
+  #         'wget --no-verbose --tries=1 --spider http://localhost:3000/health || exit 1',
+  #       ]
+  #     interval: 30s
+  #     timeout: 10s
+  #     retries: 3
+  #     start_period: 40s
+  #   depends_on:
+  #     postgres-init:
+  #       condition: service_completed_successfully
+  #     postgres:
+  #       condition: service_healthy
+  #     qdrant:
+  #       condition: service_healthy
+  #     redis:
+  #       condition: service_healthy
+  #     neo4j:
+  #       condition: service_healthy
 
   qdrant:
     image: qdrant/qdrant:latest
@@ -100,26 +100,26 @@ services:
     healthcheck:
       test: ["CMD", "bash", "-c", "exec 3<>/dev/tcp/127.0.0.1/6333 && echo -e 'GET /readyz HTTP/1.1\\r\\nHost: localhost\\r\\nConnection: close\\r\\n\\r\\n' >&3 && grep -q 'HTTP/1.1 200' <&3"]
 
-  neo4j:
-    image: neo4j:latest
-    container_name: neo4j
-    restart: unless-stopped
-    environment:
-      NEO4J_AUTH: neo4j/graph_pass
-      NEO4J_server_memory_pagecache_size: 512M
-      NEO4J_server_memory_heap_initial__size: 512M
-      NEO4J_server_memory_heap_max__size: 1G
-    ports:
-      - 7474:7474   # HTTP UI
-      - 7687:7687   # Bolt protocol
-    volumes:
-      - ./data/neo4j/data:/data
-      - ./data/neo4j/logs:/logs
-    healthcheck:
-      test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "graph_pass", "RETURN 1"]
-      interval: 15s
-      timeout: 10s
-      retries: 5
+  # neo4j:
+  #   image: neo4j:latest
+  #   container_name: neo4j
+  #   restart: unless-stopped
+  #   environment:
+  #     NEO4J_AUTH: neo4j/graph_pass
+  #     NEO4J_server_memory_pagecache_size: 512M
+  #     NEO4J_server_memory_heap_initial__size: 512M
+  #     NEO4J_server_memory_heap_max__size: 1G
+  #   ports:
+  #     - 7474:7474   # HTTP UI
+  #     - 7687:7687   # Bolt protocol
+  #   volumes:
+  #     - ./data/neo4j/data:/data
+  #     - ./data/neo4j/logs:/logs
+  #   healthcheck:
+  #     test: ["CMD", "cypher-shell", "-u", "neo4j", "-p", "graph_pass", "RETURN 1"]
+  #     interval: 15s
+  #     timeout: 10s
+  #     retries: 5
 
   postgres:
     image: postgres
@@ -182,30 +182,30 @@ services:
       test: ["CMD", "nc", "-vz", "127.0.0.1", "8081"]
       interval: 5s
 
-  redis:
-    image: redis:latest
-    container_name: redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - ./data/redis:/data
-    command: ["redis-server", "--appendonly", "yes"]
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
+  # redis:
+  #   image: redis:latest
+  #   container_name: redis
+  #   restart: unless-stopped
+  #   ports:
+  #     - "6379:6379"
+  #   volumes:
+  #     - ./data/redis:/data
+  #   command: ["redis-server", "--appendonly", "yes"]
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
 
-  redisinsight:
-    image: redislabs/redisinsight:latest
-    container_name: redisinsight
-    restart: unless-stopped
-    ports:
-      - 5540:5540
-    depends_on:
-      redis:
-        condition: service_healthy
+  # redisinsight:
+  #   image: redislabs/redisinsight:latest
+  #   container_name: redisinsight
+  #   restart: unless-stopped
+  #   ports:
+  #     - 5540:5540
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
 
 configs:
   qdrant_config:

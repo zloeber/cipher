@@ -35,6 +35,7 @@ import { WebServerManager } from './web/web-server.js';
 import path from 'path';
 import os from 'os';
 import { fileURLToPath } from 'url';
+import e from 'express';
 
 // Helper function to resolve .env file path
 function resolveEnvPath(): string {
@@ -116,7 +117,8 @@ program
 		'--mcp-dns-rebinding-protection',
 		'Enable DNS rebinding protection for MCP server',
 		false
-	);
+	)
+	.option('--show', 'Show the current configuration', false);
 
 program
 	.description(
@@ -243,6 +245,12 @@ program
 			}
 
 			const cfg = await loadAgentConfig(configPath);
+
+			if (opts.show) {
+				logger.info(`Current agent configuration: ${configPath}`);
+				logger.info(JSON.stringify(cfg, null, 2));
+				process.exit(0);
+			}
 
 			// Apply --strict flag to all MCP server configs if specified
 			if (opts.strict && cfg.mcpServers) {

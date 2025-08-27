@@ -159,7 +159,8 @@ const DEFAULT_OPTIONS = {
  * Prompts for LLM decision making
  */
 const MEMORY_OPERATION_PROMPTS = {
-	SYSTEM_PROMPT: `You analyze programming knowledge facts and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
+	// System prompt for initial analysis (technically unused?)
+	SYSTEM_PROMPT: `{You analyze programming knowledge facts and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
 
 Process only significant technical content (concepts, code details, patterns, implementations). Skip personal or trivial content.
 
@@ -177,7 +178,7 @@ Rules:
 - DELETE: Outdated/incorrect/contradictory information
 - NONE: Duplicate, already covered, or non-significant
 
-Always preserve full code blocks/commands/patterns exactly as given.`,
+Always preserve full code blocks/commands/patterns exactly as given.}`,
 
 	DECISION_PROMPT: `Analyze the knowledge fact and choose ADD, UPDATE, DELETE, or NONE.
 
@@ -1127,6 +1128,22 @@ function extractCodePattern(fact: string): string | undefined {
 }
 
 /**
+ * Extract custom fact pattern from fact content
+ */
+function extractFactPattern(fact: string, customPatterns: RegExp[]): string | undefined {
+	if (!Array.isArray(customPatterns) || customPatterns.length === 0) {
+		return undefined;
+	}
+	for (const pattern of customPatterns) {
+		const match = fact.match(pattern);
+		if (match) {
+			return match[0];
+		}
+	}
+	return undefined;
+}
+
+/**
  * Extract technical tags from fact content
  */
 function extractTechnicalTags(fact: string): string[] {
@@ -1227,6 +1244,29 @@ function extractTechnicalTags(fact: string): string[] {
 		fact.includes('response')
 	) {
 		tags.push('api');
+	}
+
+	// Add general tag if no specific patterns found
+	if (tags.length === 0) {
+		tags.push('general-knowledge');
+	}
+
+	// Remove duplicates and return lowercase singular nouns
+	return Array.from(new Set(tags)).map(tag => tag.toLowerCase());
+}
+
+/**
+ * Extract technical tags from fact content
+ */
+function extractFactTags(fact: string, tagMap: Record<string, string[]>): string[] {
+	const tags: string[] = [];
+
+	for (const [key, values] of Object.entries(tagMap)) {
+		values.forEach(value => {
+			if (fact.toLowerCase().includes(value)) {
+				tags.push(key);
+			}
+		});
 	}
 
 	// Add general tag if no specific patterns found

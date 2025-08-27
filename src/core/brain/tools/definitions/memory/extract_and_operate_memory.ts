@@ -15,7 +15,7 @@ import { createKnowledgePayload, extractKnowledgeInfo, mergeKnowledgeInfo } from
 /**
  * Determines if a piece of content is significant enough to be extracted as knowledge
  */
-function isSignificantKnowledge2(content: string, memoryProfile: any): boolean {
+function isSignificantKnowledge(content: string, memoryProfile: any): boolean {
   if (!content || content.trim().length === 0) {
     return false;
   }
@@ -141,32 +141,12 @@ function generateSafeMemoryId(index: number): number {
 /**
  * Infer domain from tags for enhanced categorization
  */
-function inferDomainFromTags(tags: string[]): string | undefined {
-	const domainMapping: Record<string, string> = {
-		javascript: 'frontend',
-		typescript: 'frontend',
-		react: 'frontend',
-		vue: 'frontend',
-		angular: 'frontend',
-		html: 'frontend',
-		css: 'frontend',
-		node: 'backend',
-		express: 'backend',
-		api: 'backend',
-		database: 'backend',
-		sql: 'backend',
-		docker: 'devops',
-		kubernetes: 'devops',
-		deployment: 'devops',
-		ci: 'devops',
-		cd: 'devops',
-		git: 'version-control',
-		github: 'version-control',
-		testing: 'quality-assurance',
-		debug: 'quality-assurance',
-	};
+function inferDomainFromTags(tags: string[], memoryProfile: any): string | undefined {
+  const profile = memoryProfile || {}; // Use an empty object as default
 
-	for (const tag of tags) {
+  // Convert to RegExp objects
+  const domainMapping = (profile as any).domainMapping || {};
+  for (const tag of tags) {
 		if (domainMapping[tag.toLowerCase()]) {
 			return domainMapping[tag.toLowerCase()];
 		}
@@ -391,17 +371,18 @@ export const extractAndOperateMemoryTool: InternalTool = {
 					});
 					return false;
 				}
-				const memoryProfile = context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
-				const isSignificant = isSignificantKnowledge2(fact, memoryProfile);
+				// Prefer memoryProfile from running config (agentConfig)
+				const memoryProfile =
+					context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
+				const isSignificant = isSignificantKnowledge(fact, memoryProfile);
 				if (!isSignificant) {
 					logger.debug('ExtractAndOperateMemory: Skipping non-significant fact', {
 						factPreview: fact.substring(0, 100) + (fact.length > 100 ? '...' : ''),
-						reason: 'Does not contain significant programming knowledge or concepts',
+						reason: 'Does not contain significant knowledge or concepts',
 					});
 				}
 				return isSignificant;
 			});
-
 			if (significantFacts.length === 0) {
 				logger.debug('ExtractAndOperateMemory: No significant facts found after filtering', {
 					originalFacts: validFacts.length,
@@ -800,7 +781,9 @@ export const extractAndOperateMemoryTool: InternalTool = {
 						qualitySource = 'heuristic';
 
 						// Create V2 payload with enhanced metadata
-						const domainFromTags = inferDomainFromTags(action.tags);
+            const memoryProfile =
+					    context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
+						const domainFromTags = inferDomainFromTags(action.tags, memoryProfile);
 						const options: any = {
 							qualitySource,
 						};

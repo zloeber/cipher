@@ -93,3 +93,23 @@ tasks:
     cmds:
       - |
         gitleaks detect --source ./ -f json -r secret_results.json
+
+  build:
+    desc: Build the project
+    env:
+      NODE_ENV: production
+    cmds:
+      - |
+        pnpm i
+        if [ "$BUILD_UI" = "true" ]; then
+          pnpm run build; 
+        else
+          pnpm run build:no-ui;
+        fi
+        npm link
+
+  run:
+    desc: Run the project
+    cmds:
+      - |
+        node dist/src/app/index.cjs
