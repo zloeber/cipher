@@ -1,54 +1,50 @@
 # Cipher Developer Guide
 
+## General Instructions:
+
+- Parse and prioritize the directions defined in `AGENTS.md` that are closest to the code you are working on.
+- When generating new TypeScript code, please follow the existing coding style.
+- Ensure all new functions and classes have JSDoc comments.
+- Prefer functional programming paradigms where appropriate.
+- All code should be compatible with TypeScript 5.0 and Node.js 18+.
+- Prefer native Node.js libraries over spawning subprocesses.
+
+## Coding Style:
+
+- Interface names should be prefixed with `I` (e.g., `IUserService`).
+- Private class members should be prefixed with an underscore (`_`).
+- Always use strict equality (`===` and `!==`).
+- Maintain a component-driven project structure.
+- Avoid duplication by using clear, modular code organization.
+- 2-space indentation, consistent with standard TypeScript style.
+
+## Regarding Dependencies:
+- Avoid introducing new external dependencies unless absolutely necessary.
+- If a new dependency is required, please state the reason.
+
 ## Project Structure
-- ./src - main code entrypoint
-- ./memAgent/cipher.yml - Application configuration
-- ./docs - documentation for this project
-- ./examples - example project implementations
-
-## Code Style Guidelines
-- If you find an AGENTS.md file in the target directory of your code use its defined guidelines instead of these
-- Write TypeScript code compliant with the latest ECMAScript standards, optimized for readability and maintainability
-- Use explicit type annotations for all variables, functions, parameters, and return types
-- Always use interfaces or type aliases for data structures
-- Use interface definitions for creating pluggable code bases
-- Maintain a component-driven project structure
-- Avoid duplication by using clear, modular code organization
-- 2-space indentation, consistent with standard TypeScript style
-- Use path utilities from Node.js (e.g., `path.join()`), imports at the top of files
-- Remove unused imports and variables (use '_' for unused)
-- Combine if statements, use ternary operators for simple logic
-- Prefer native Node.js libraries over spawning subprocesses
-- Private members prefixed with `#` (private fields) or `_` (private methods)
-- Use `instanceof` or `typeof` for type checks
-
-## Naming Conventions
-- Use `camelCase` for variables, functions, and object properties
-- Use `PascalCase` for class, interface, type alias, and enum names
-- Use `UPPER_SNAKE_CASE` for constants and environment variables, prefixed with provider or context (e.g., `OLLAMA_API_KEY`, `OPENAI_ORG_ID`)
-- Filenames should use `kebab-case` and match the exported entity when possible (e.g., `user-service.ts` for `UserService`)
-- Use descriptive and consistent configuration file names (e.g., `agents.yaml`, `cipher.config.ts`)
-- Avoid abbreviations; prefer clarity and explicitness in all names
-
-## Error Handling
-- Use try-catch with meaningful error messages
-- No bare catch statements; always handle or log errors
-- Log errors with a unified logger (e.g., Winston, Pino)
-- Always use secure configuration file loading
-- Functions should return the expected type or throw an error
+- If `.metagit.yml` exists, parse and use it for locating important component paths .
+- `./src/app` - frontend code and application entrypoints.
+- `./src/core` - core logic and backend components.
+- `./memAgent/cipher.yml` - default application configuration.
+- `./docs` - documentation for this project.
+- `./examples` - example project implementations.
 
 ## Security
+
 - No hardcoded sensitive data
 - Use environment variables for secrets
 - Sanitize inputs to external services
 
 ## Tools
+
 - pnpm: Node.js package manager
 - eslint/prettier: Formatting and linting
 - jest: Testing framework
 - tsc: Type checking
 
 ## Command-Line Tools
+
 - Use the `gh` command-line to interact with GitHub.
 - Use the `glow` command-line to present markdown content.
 - Use the `jq` command to read and extract information from JSON files.
@@ -60,6 +56,7 @@
   - `pnpm ...` for managing environments, installing packages, etc.
 
 ## Documentation Sources
+
 - If working with a new library or tool, consider looking for its documentation from its website, GitHub project, or the relevant llms.txt.
   - It is always better to have accurate, up-to-date documentation at your disposal, rather than relying on your pre-trained knowledge.
 - You can search the following directories for llms.txt collections for many projects:

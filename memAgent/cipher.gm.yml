@@ -1,0 +1,441 @@
+# List of MCP servers to use
+# mcpServers: 
+#   filesystem:
+#     type: stdio
+#     command: npx
+#     args:
+#       - -y
+#       - '@modelcontextprotocol/server-filesystem'
+#       - .
+
+# If not specified, please set it like this:
+mcpServers: {}
+
+# Choose ONLY ONE of the following LLM providers
+llm:
+  provider: openai
+  model: gpt-4.1-mini
+  apiKey: $OPENAI_API_KEY
+  maxIterations: 50
+
+  # provider: gemini
+  # model: gemini-2.5-flash
+  # apiKey: $GEMINI_API_KEY
+  # maxIterations: 50
+
+  # provider: anthropic
+  # model: claude-3-5-haiku-20241022
+  # apiKey: $ANTHROPIC_API_KEY
+  # maxIterations: 50
+
+  # provider: openrouter
+  # model: google/gemini-2.5-pro
+  # apiKey: $OPENROUTER_API_KEY
+  # maxIterations: 50
+
+  # provider: qwen
+  # model: qwen3-14b
+  # apiKey: $QWEN_API_KEY
+  # maxIterations: 50
+  # qwenOptions:
+  #   enableThinking: false
+
+# --- AWS Bedrock LLM Configuration ---
+  # provider: aws
+  # model: us.anthropic.claude-3-5-sonnet-20241022-v2:0  # Or another Bedrock-supported model
+  # maxIterations: 50
+  # aws:
+  #   region: $AWS_REGION
+  #   accessKeyId: $AWS_ACCESS_KEY_ID
+  #   secretAccessKey: $AWS_SECRET_ACCESS_KEY
+  #   sessionToken: $AWS_SESSION_TOKEN   # Optional, for temporary credentials
+
+# --- Azure OpenAI LLM Configuration ---
+#   provider: azure
+#   model: gpt-4o-mini  # Or your Azure deployment/model name
+#   apiKey: $AZURE_OPENAI_API_KEY
+#   maxIterations: 50
+#   azure:
+#     endpoint: $AZURE_OPENAI_ENDPOINT
+#     deploymentName: gpt-4o-mini  # Optional, defaults to model name
+
+# --- Ollama LLM Configuration (Sample, Commented Out) ---
+  # provider: ollama
+  # model: qwen3:8b      # Use the model you downloaded
+  # maxIterations: 50
+  # baseURL: $OLLAMA_BASE_URL
+
+# --- LM Studio LLM Configuration (Sample, Commented Out) ---
+  # provider: lmstudio
+  # model: hermes-2-pro-llama-3-8b      # Use the model you have loaded
+  # maxIterations: 50
+  # baseURL: $LMSTUDIO_BASE_URL
+
+# Embedding configuration: ONLY ONE of the following
+OpenAI:
+
+embedding:
+  type: openai
+  model: text-embedding-3-small
+  apiKey: $OPENAI_API_KEY
+
+# Gemini:
+# embedding:
+#   type: gemini
+#   model: gemini-embedding-001
+#   apiKey: $GEMINI_API_KEY
+
+# Ollama:
+# embedding:
+#   type: ollama
+#   model: mxbai-embed-large
+#   baseUrl: $OLLAMA_BASE_URL
+#   dimensions: 1024
+
+# LM Studio:
+# embedding:
+#   type: lmstudio
+#   model: nomic-embed-text-v1.5
+#   baseUrl: $LMSTUDIO_BASE_URL
+
+# Voyage (for Anthropic/Claude users):
+# embedding:
+#   type: voyage
+#   model: voyage-3-large     #(1024, 256, 512, 2048)
+#   apiKey: $VOYAGE_API_KEY
+#   dimensions: 1024
+
+# Qwen:
+# embedding:
+#   type: qwen
+#   model: text-embedding-v3
+#   apiKey: $QWEN_API_KEY
+#   dimensions: 1024          # (1024, 768 or 512)
+
+# AWS Bedrock:
+# embedding:
+#   type: aws-bedrock
+#   model: amazon.titan-embed-text-v2:0   # or cohere.embed-english-v3
+#   region: $AWS_REGION
+#   accessKeyId: $AWS_ACCESS_KEY_ID
+#   secretAccessKey: $AWS_SECRET_ACCESS_KEY
+#   sessionToken: $AWS_SESSION_TOKEN       # Optional, for temporary credentials
+#   dimensions: 1024                       # 1024 (default), 512, or 256 for Titan V2
+#   timeout: 30000
+#   maxRetries: 3
+
+# Azure OpenAI:
+# embedding:
+#   type: openai
+#   model: text-embedding-3-small
+#   apiKey: $AZURE_OPENAI_API_KEY
+#   baseUrl: $AZURE_OPENAI_ENDPOINT        # e.g., https://your-resource.openai.azure.com
+#   dimensions: 1536                       # Optional: depends on model
+#   timeout: 30000
+#   maxRetries: 3
+
+# Disable embeddings entirely:
+# embedding:
+#   disabled: true
+
+
+
+# Evaluation LLM configuration (non-thinking model for evaluation step)
+# evalLlm:
+#   provider: anthropic
+#   model: claude-3-7-sonnet-20250219
+#   apiKey: $ANTHROPIC_API_KEY
+
+# System prompt - User customizable
+# This prompt will be combined with built-in tool usage instructions
+systemPrompt:
+  enabled: true
+  content: |
+    You are an AI programming assistant focused on coding and reasoning tasks. You excel at:
+    - Writing clean, efficient code
+    - Debugging and problem-solving
+    - Code review and optimization
+    - Explaining complex technical concepts
+    - Reasoning through programming challenges
+
+memoryProfile:
+  name: game_master
+  description: Game master profile for managing interactive novel campaigns, tracking all interactions, levels, character choices, and world states.
+  prompts:
+  system: |-
+    You analyze and retain all significant game-related knowledge, including player interactions, choices, level progress, character stats, world states, 
+    and narrative events for an epic interactive novel campaign.
+
+    Process all content relevant to the campaign, including dialogue, decisions, outcomes, inventory, quests, and world changes. 
+    Skip only trivial or non-game-related content.
+
+    Consider:
+    1) Narrative and gameplay relevance
+    2) Semantic similarity/overlap with existing memories
+    3) Recency and contextual relevance
+    4) Quality and completeness of the event or choice
+    5) Conversation context and campaign continuity
+    6) Concrete details about characters, worlds, and story progression
+
+    Rules:
+    - ADD: New, unique game event, choice, or state
+    - UPDATE: Improves/corrects existing campaign knowledge
+    - DELETE: Outdated/incorrect/contradictory information
+    - NONE: Duplicate, already covered, or non-significant
+
+    Always preserve full narrative blocks, choices, and game state details exactly as given.
+  tools:
+    extract_knowledge:
+      description: Extract detailed campaign knowledge, including interactions, choices, level progress, character stats, world states, and narrative events.
+      parameters:
+        knowledge: An array of strings, each containing a campaign event, choice, or state, with complete narrative or data blocks within triple backticks if present.
+  skipPatterns:
+    # Non-game-related or trivial content
+    - pattern: "\\b(hello|hi|hey|thanks|thank you|please|sorry|bye|goodbye)\\b"
+      flags: "i"
+    - pattern: "\\b(personal|profile|identity|username|login|password|email|address|phone)\\b"
+      flags: "i"
+    - pattern: "^\\s*$"  # Empty or whitespace-only
+    # Any user command (ie. \help, \reset, \stats)
+    - pattern: "^\\\\[\\w\\d_-]+\\b"
+      flags: "i"
+    # Simple affirmations and negations
+    - pattern: "^(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
+      flags: "i"
+    - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
+      flags: "i"
+    - pattern: "^(cipher_memory_search|memory_search):\\s*(found|completed|no results|error)\\b"
+      flags: "i"
+    - pattern: "^(task|operation|process):\\s*(completed|failed|in progress|waiting|canceled)\\b"
+      flags: "i"
+  keyPatterns:
+    # Game and narrative elements
+    - pattern: "\\b(character|player|npc|level|quest|mission|objective|goal|choice|decision|action|inventory|item|skill|ability|stat|attribute|xp|experience|level up|progress|checkpoint|save|load|world|map|location|area|region|kingdom|realm|campaign|story|plot|event|encounter|battle|combat|dialogue|conversation|scene|chapter|turn|round|roll|dice|outcome|result|reward|penalty|challenge|puzzle|trap|secret|lore|history|timeline|timeline event|artifact|magic|spell|power|enemy|monster|boss|villain|hero|party|team|faction|alliance|guild|order|epic|legend|myth|prophecy|destiny|fate|timeline|timeline event)\\b"
+      flags: "i"
+    # Narrative and code blocks
+    - pattern: "```[\\s\\S]*```"
+    - pattern: "`[^`]+`"
+    # Game mechanics and stats
+    - pattern: "\\b(hp|mp|ap|sp|strength|dexterity|intelligence|wisdom|charisma|constitution|luck|armor|weapon|damage|heal|buff|debuff|effect|status|turn|initiative|roll|d20|d6|d10|d12|d8|d4)\\b"
+      flags: "i"
+    # Choices and branching
+    - pattern: "\\b(option|choose|select|pick|branch|path|route|fork|outcome|result|consequence|alternative|variant)\\b"
+      flags: "i"
+    # World and environment
+    - pattern: "\\b(environment|weather|season|time|day|night|sunrise|sunset|moon|star|terrain|forest|mountain|river|lake|sea|ocean|desert|cave|dungeon|castle|village|city|town|market|inn|tavern|temple|ruin|fortress|tower|portal|dimension|plane|universe|multiverse)\\b"
+      flags: "i"
+  commonPatterns: []
+    # Brackets and parentheses
+    # - pattern: "[{}\\[\\]()]"
+    # # Operators and punctuation
+    # - pattern: "[=><!&|]"
+    # - pattern: "[;:,]"
+    # # Dot notation and function calls
+    # - pattern: "\\w+\\.\\w+"
+    # - pattern: "\\w+\\(\\)"
+    # # Dice notation
+    # - pattern: "\\bd\\d+\\b"
+    # # Comments
+    # - pattern: "/\\*[\\s\\S]*?\\*/|//.*$"
+    #   flags: "m"
+  wordPatterns:
+    - character
+    - player
+    - npc
+    - level
+    - quest
+    - mission
+    - objective
+    - choice
+    - decision
+    - action
+    - inventory
+    - item
+    - skill
+    - ability
+    - stat
+    - xp
+    - experience
+    - checkpoint
+    - save
+    - load
+    - world
+    - map
+    - location
+    - area
+    - region
+    - kingdom
+    - realm
+    - campaign
+    - story
+    - plot
+    - event
+    - encounter
+    - battle
+    - combat
+    - dialogue
+    - conversation
+    - scene
+    - chapter
+    - turn
+    - round
+    - roll
+    - dice
+    - outcome
+    - result
+    - reward
+    - penalty
+    - challenge
+    - puzzle
+    - trap
+    - secret
+    - lore
+    - history
+    - timeline
+    - artifact
+    - magic
+    - spell
+    - power
+    - enemy
+    - monster
+    - boss
+    - villain
+    - hero
+    - party
+    - team
+    - faction
+    - alliance
+    - guild
+    - order
+    - epic
+    - legend
+    - myth
+    - prophecy
+    - destiny
+    - fate
+    - environment
+    - weather
+    - season
+    - time
+    - terrain
+    - forest
+    - mountain
+    - river
+    - lake
+    - sea
+    - ocean
+    - desert
+    - cave
+    - dungeon
+    - castle
+    - village
+    - city
+    - town
+    - market
+    - inn
+    - tavern
+    - temple
+    - ruin
+    - fortress
+    - tower
+    - portal
+    - dimension
+    - plane
+    - universe
+    - multiverse
+  domainTags:
+    character: game
+    player: game
+    npc: game
+    level: game
+    quest: game
+    mission: game
+    choice: game
+    decision: game
+    action: game
+    inventory: game
+    item: game
+    skill: game
+    ability: game
+    stat: game
+    xp: game
+    world: game
+    map: game
+    location: game
+    region: game
+    kingdom: game
+    realm: game
+    campaign: game
+    story: game
+    plot: game
+    event: game
+    encounter: game
+    battle: game
+    combat: game
+    dialogue: game
+    scene: game
+    chapter: game
+    turn: game
+    round: game
+    roll: game
+    dice: game
+    outcome: game
+    reward: game
+    penalty: game
+    challenge: game
+    puzzle: game
+    trap: game
+    secret: game
+    lore: game
+    history: game
+    timeline: game
+    artifact: game
+    magic: game
+    spell: game
+    power: game
+    enemy: game
+    monster: game
+    boss: game
+    villain: game
+    hero: game
+    party: game
+    team: game
+    faction: game
+    alliance: game
+    guild: game
+    order: game
+    epic: game
+    legend: game
+    myth: game
+    prophecy: game
+    destiny: game
+    fate: game
+    environment: game
+    weather: game
+    season: game
+    terrain: game
+    forest: game
+    mountain: game
+    river: game
+    lake: game
+    sea: game
+    ocean: game
+    desert: game
+    cave: game
+    dungeon: game
+    castle: game
+    village: game
+    city: game
+    town: game
+    market: game
+    inn: game
+    tavern: game
+    temple: game
+    ruin: game
+    fortress: game
+    tower: game
+    portal: game
+    dimension: game
+    plane: game
+    universe: game
+    multiverse: game

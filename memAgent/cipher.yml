@@ -157,662 +157,661 @@ systemPrompt:
     - Code review and optimization
     - Explaining complex technical concepts
     - Reasoning through programming challenges
+
 memoryProfile:
-  assigned: default
-  profiles:
-    - name: default
-      description: Default memory profile for general programming knowledge and decision retention.
-      prompts:
-        system: |-
-          You analyze programming knowledge facts and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
+  name: default
+  description: Default memory profile for general programming knowledge and decision retention.
+  prompts:
+    system: |-
+      You analyze programming knowledge facts and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
 
-          Process only significant technical content (concepts, code details, patterns, implementations). Skip personal or trivial content.
+      Process only significant technical content (concepts, code details, patterns, implementations). Skip personal or trivial content.
 
-          Consider:
-          1) Technical relevance and value
-          2) Semantic similarity/overlap
-          3) Recency and contextual relevance
-          4) Quality and completeness
-          5) Conversation context and needs
-          6) Concrete code/pattern details
+      Consider:
+      1) Technical relevance and value
+      2) Semantic similarity/overlap
+      3) Recency and contextual relevance
+      4) Quality and completeness
+      5) Conversation context and needs
+      6) Concrete code/pattern details
 
-          Rules:
-          - ADD: New, unique technical knowledge
-          - UPDATE: Improves/corrects existing technical knowledge
-          - DELETE: Outdated/incorrect/contradictory information
-          - NONE: Duplicate, already covered, or non-significant
+      Rules:
+      - ADD: New, unique technical knowledge
+      - UPDATE: Improves/corrects existing technical knowledge
+      - DELETE: Outdated/incorrect/contradictory information
+      - NONE: Duplicate, already covered, or non-significant
 
-          Always preserve full code blocks/commands/patterns exactly as given.
-      tools:
-        extract_knowledge:
-          description: Extract detailed knowledge with implementation code, commands, and technical details from the interaction.
-          parameters:
-            knowledge: An array of strings, each containing a programming knowledge along with complete implementation code, command syntax, or technical details when present. Always preserve the complete pattern within triple backticks.
-      skipPatterns:
-        # Personal information and identity
-        - pattern: "\\b(my name|user['']?s? name|find my name|search.*name|who am i|what['']?s my name)\\b"
-          flags: "i"
-        - pattern: "\\b(personal|profile|identity|username|login|password|email|address|phone)\\b"
-          flags: "i"
-        # Trivial search queries without technical context
-        - pattern: "^(user:|assistant:)?\\s*(search|find|look|what|where|who|when|why|how)\\s+(is|are|was|were|do|does|did|can|could|should|would|will|my|the|a|an)\\b"
-          flags: "i"
-        # Simple greetings and social interactions
-        - pattern: "^(user:|assistant:)?\\s*(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\\b"
-          flags: "i"
-        # Tool results with no meaningful content
-        - pattern: "^(cipher_memory_search|memory_search):\\s*(found|completed|no results|error)"
-          flags: "i"
-        # Generic status messages
-        - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
-          flags: "i"
-        # Simple yes/no or acknowledgment responses
-        - pattern: "^(user:|assistant:)?\\s*(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
-          flags: "i"
-      # If any of these match at all the knowledge is considered significant
-      keyPatterns:
-        # Programming concepts and patterns
-        - pattern: "\\b(function|method|class|interface|module|library|framework|algorithm|data structure|design pattern)\\b"
-          flags: "i"
-        - pattern: "\\b(variable|constant|parameter|argument|return|async|await|promise|callback|closure|scope)\\b"
-          flags: "i"
-        - pattern: "\\b(loop|iteration|recursion|condition|exception|error handling|debugging|testing|optimization)\\b"
-          flags: "i"
+      Always preserve full code blocks/commands/patterns exactly as given.
+  tools:
+    extract_knowledge:
+      description: Extract detailed knowledge with implementation code, commands, and technical details from the interaction.
+      parameters:
+        knowledge: An array of strings, each containing a programming knowledge along with complete implementation code, command syntax, or technical details when present. Always preserve the complete pattern within triple backticks.
+  skipPatterns:
+    # Personal information and identity
+    - pattern: "\\b(my name|user['']?s? name|find my name|search.*name|who am i|what['']?s my name)\\b"
+      flags: "i"
+    - pattern: "\\b(personal|profile|identity|username|login|password|email|address|phone)\\b"
+      flags: "i"
+    # Trivial search queries without technical context
+    - pattern: "^(user:|assistant:)?\\s*(search|find|look|what|where|who|when|why|how)\\s+(is|are|was|were|do|does|did|can|could|should|would|will|my|the|a|an)\\b"
+      flags: "i"
+    # Simple greetings and social interactions
+    - pattern: "^(user:|assistant:)?\\s*(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\\b"
+      flags: "i"
+    # Tool results with no meaningful content
+    - pattern: "^(cipher_memory_search|memory_search):\\s*(found|completed|no results|error)"
+      flags: "i"
+    # Generic status messages
+    - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
+      flags: "i"
+    # Simple yes/no or acknowledgment responses
+    - pattern: "^(user:|assistant:)?\\s*(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
+      flags: "i"
+  # If any of these match at all the knowledge is considered significant
+  keyPatterns:
+    # Programming concepts and patterns
+    - pattern: "\\b(function|method|class|interface|module|library|framework|algorithm|data structure|design pattern)\\b"
+      flags: "i"
+    - pattern: "\\b(variable|constant|parameter|argument|return|async|await|promise|callback|closure|scope)\\b"
+      flags: "i"
+    - pattern: "\\b(loop|iteration|recursion|condition|exception|error handling|debugging|testing|optimization)\\b"
+      flags: "i"
 
-        # Code elements and syntax
-        - pattern: "\\b(import|export|require|include|package|dependency|api|endpoint|request|response)\\b"
-          flags: "i"
-        - pattern: "\\b(database|query|sql|nosql|schema|table|index|transaction|orm|migration)\\b"
-          flags: "i"
-        - pattern: "\\b(git|version control|commit|merge|branch|pull request|repository|deployment)\\b"
-          flags: "i"
+    # Code elements and syntax
+    - pattern: "\\b(import|export|require|include|package|dependency|api|endpoint|request|response)\\b"
+      flags: "i"
+    - pattern: "\\b(database|query|sql|nosql|schema|table|index|transaction|orm|migration)\\b"
+      flags: "i"
+    - pattern: "\\b(git|version control|commit|merge|branch|pull request|repository|deployment)\\b"
+      flags: "i"
 
-        # Technical implementations
-        - pattern: "\\b(implements?|extends?|inherits?|overrides?|polymorphism|encapsulation|abstraction)\\b"
-          flags: "i"
-        - pattern: "\\b(sort|search|filter|map|reduce|transform|parse|serialize|encrypt|decrypt)\\b"
-          flags: "i"
-        - pattern: "\\b(authentication|authorization|security|validation|sanitization|middleware)\\b"
-          flags: "i"
+    # Technical implementations
+    - pattern: "\\b(implements?|extends?|inherits?|overrides?|polymorphism|encapsulation|abstraction)\\b"
+      flags: "i"
+    - pattern: "\\b(sort|search|filter|map|reduce|transform|parse|serialize|encrypt|decrypt)\\b"
+      flags: "i"
+    - pattern: "\\b(authentication|authorization|security|validation|sanitization|middleware)\\b"
+      flags: "i"
 
-        # Code blocks and technical syntax
-        - pattern: "```[\\s\\S]*```"
-        - pattern: "`[^`]+`"
-        - pattern: "\\$[a-zA-Z_][a-zA-Z0-9_]*"   # Shell variables
-        - pattern: "\\b(npm|yarn|pip|composer|cargo|go get|mvn|gradle)\\b"
-          flags: "i"
+    # Code blocks and technical syntax
+    - pattern: "```[\\s\\S]*```"
+    - pattern: "`[^`]+`"
+    - pattern: "\\$[a-zA-Z_][a-zA-Z0-9_]*"   # Shell variables
+    - pattern: "\\b(npm|yarn|pip|composer|cargo|go get|mvn|gradle)\\b"
+      flags: "i"
 
-        # File and system operations
-        - pattern: "\\b(file|directory|path|config|environment|server|client|host|port|url|http|https|ssl|tls)\\b"
-          flags: "i"
-        - pattern: "\\b(dockerfile|docker|container|kubernetes|cloud|aws|azure|gcp|ci/cd|pipeline)\\b"
-          flags: "i"
+    # File and system operations
+    - pattern: "\\b(file|directory|path|config|environment|server|client|host|port|url|http|https|ssl|tls)\\b"
+      flags: "i"
+    - pattern: "\\b(dockerfile|docker|container|kubernetes|cloud|aws|azure|gcp|ci/cd|pipeline)\\b"
+      flags: "i"
 
-        # Programming languages and technologies
-        - pattern: "\\b(javascript|typescript|python|java|c\\+\\+|c#|rust|go|php|ruby|swift|kotlin|scala|r)\\b"
-          flags: "i"
-        - pattern: "\\b(react|vue|angular|node|express|django|flask|spring|rails|laravel|fastapi)\\b"
-          flags: "i"
-        - pattern: "\\b(html|css|scss|sass|less|bootstrap|tailwind|webpack|vite|rollup|babel|eslint)\\b"
-          flags: "i"
+    # Programming languages and technologies
+    - pattern: "\\b(javascript|typescript|python|java|c\\+\\+|c#|rust|go|php|ruby|swift|kotlin|scala|r)\\b"
+      flags: "i"
+    - pattern: "\\b(react|vue|angular|node|express|django|flask|spring|rails|laravel|fastapi)\\b"
+      flags: "i"
+    - pattern: "\\b(html|css|scss|sass|less|bootstrap|tailwind|webpack|vite|rollup|babel|eslint)\\b"
+      flags: "i"
 
-        # Error messages and stack traces with technical context
-        - pattern: "\\b(error|exception|traceback|stack trace|compilation|syntax error|runtime error|type error)\\b"
-          flags: "i"
+    # Error messages and stack traces with technical context
+    - pattern: "\\b(error|exception|traceback|stack trace|compilation|syntax error|runtime error|type error)\\b"
+      flags: "i"
 
-        # Technical explanations and problem-solving
-        - pattern: "\\b(solution|approach|implementation|technique|strategy|pattern|best practice|optimization)\\b"
-          flags: "i"
-        - pattern: "\\b(performance|scalability|maintainability|refactoring|code review|documentation)\\b"
-          flags: "i"
+    # Technical explanations and problem-solving
+    - pattern: "\\b(solution|approach|implementation|technique|strategy|pattern|best practice|optimization)\\b"
+      flags: "i"
+    - pattern: "\\b(performance|scalability|maintainability|refactoring|code review|documentation)\\b"
+      flags: "i"
 
-        # Programming-specific patterns that indicate technical content
-        - pattern: "\\b(code|coding|program|programming|develop|development|software|hardware|tech|technical|digital|computer|computing|algorithm|logic|syntax|semantic|compile|runtime|execute|debug|test|deploy|implement|configure|setup|install|upgrade|migrate|scale|optimize|refactor)\\b"
-          flags: "i"
+    # Programming-specific patterns that indicate technical content
+    - pattern: "\\b(code|coding|program|programming|develop|development|software|hardware|tech|technical|digital|computer|computing|algorithm|logic|syntax|semantic|compile|runtime|execute|debug|test|deploy|implement|configure|setup|install|upgrade|migrate|scale|optimize|refactor)\\b"
+      flags: "i"
 
-      # If 2 or more of these patterns match, the knowledge is considered significant
-      commonPatterns:
-        # Brackets and parentheses
-        - pattern: "[{}\\[\\]()]"
-        # Operators
-        - pattern: "[=><!&|]"
-        # Punctuation common in code
-        - pattern: "[;:,]"
-        # Dot notation
-        - pattern: "\\w+\\.\\w+"
-        # Function calls
-        - pattern: "\\w+\\(\\)"
-        # Comments
-        - pattern: "/\\*[\\s\\S]*?\\*/|//.*$"
-          flags: "m"
+  # If 2 or more of these patterns match, the knowledge is considered significant
+  commonPatterns:
+    # Brackets and parentheses
+    - pattern: "[{}\\[\\]()]"
+    # Operators
+    - pattern: "[=><!&|]"
+    # Punctuation common in code
+    - pattern: "[;:,]"
+    # Dot notation
+    - pattern: "\\w+\\.\\w+"
+    # Function calls
+    - pattern: "\\w+\\(\\)"
+    # Comments
+    - pattern: "/\\*[\\s\\S]*?\\*/|//.*$"
+      flags: "m"
 
-      # If > 10% of words match, the knowledge is considered significant
-      wordPatterns:
-        - api
-        - sdk
-        - cli
-        - gui
-        - ui
-        - ux
-        - ide
-        - editor
-        - compiler
-        - interpreter
-        - runtime
-        - virtual
-        - machine
-        - container
-        - image
-        - build
-        - deploy
-        - release
-        - version
-        - update
-        - patch
-        - bug
-        - feature
-        - enhancement
-        - issue
-        - ticket
-        - workflow
-        - process
-        - pipeline
-        - automation
-        - script
-        - batch
-        - cron
-        - job
-        - service
-        - microservice
-        - monolith
-        - architecture
-        - pattern
-        - design
-        - system
-        - network
-        - protocol
-        - tcp
-        - udp
-        - http
-        - https
-        - ssl
-        - tls
-        - dns
-        - cdn
-        - cache
-        - redis
-        - memcached
-        - session
-        - cookie
-        - token
-        - jwt
-        - oauth
-        - auth
-        - encrypt
-        - decrypt
-        - hash
-        - salt
-        - key
-        - certificate
-        - public
-        - private
-        - binary
-        - ascii
-        - unicode
-        - utf8
-        - base64
-        - hex
-        - decimal
-        - octal
-        - buffer
+  # If > 10% of words match, the knowledge is considered significant
+  wordPatterns:
+    - api
+    - sdk
+    - cli
+    - gui
+    - ui
+    - ux
+    - ide
+    - editor
+    - compiler
+    - interpreter
+    - runtime
+    - virtual
+    - machine
+    - container
+    - image
+    - build
+    - deploy
+    - release
+    - version
+    - update
+    - patch
+    - bug
+    - feature
+    - enhancement
+    - issue
+    - ticket
+    - workflow
+    - process
+    - pipeline
+    - automation
+    - script
+    - batch
+    - cron
+    - job
+    - service
+    - microservice
+    - monolith
+    - architecture
+    - pattern
+    - design
+    - system
+    - network
+    - protocol
+    - tcp
+    - udp
+    - http
+    - https
+    - ssl
+    - tls
+    - dns
+    - cdn
+    - cache
+    - redis
+    - memcached
+    - session
+    - cookie
+    - token
+    - jwt
+    - oauth
+    - auth
+    - encrypt
+    - decrypt
+    - hash
+    - salt
+    - key
+    - certificate
+    - public
+    - private
+    - binary
+    - ascii
+    - unicode
+    - utf8
+    - base64
+    - hex
+    - decimal
+    - octal
+    - buffer
 
-      # Infer domain from tags
-      domainTags:
-        javascript: frontend
-        typescript: frontend
-        react: frontend
-        vue: frontend
-        angular: frontend
-        html: frontend
-        css: frontend
-        node: backend
-        express: backend
-        api: backend
-        database: backend
-        sql: backend
-        docker: devops
-        kubernetes: devops
-        deployment: devops
-        ci: devops
-        cd: devops
-        git: version-control
-        github: version-control
-        testing: quality-assurance
-        debug: quality-assurance
+  # Infer domain from tags
+  domainTags:
+    javascript: frontend
+    typescript: frontend
+    react: frontend
+    vue: frontend
+    angular: frontend
+    html: frontend
+    css: frontend
+    node: backend
+    express: backend
+    api: backend
+    database: backend
+    sql: backend
+    docker: devops
+    kubernetes: devops
+    deployment: devops
+    ci: devops
+    cd: devops
+    git: version-control
+    github: version-control
+    testing: quality-assurance
+    debug: quality-assurance
 
-    - name: personal_assistant
-      description: Highly personal assistant and life coach profile for managing personal knowledge, goals, and emotional well-being.
-      prompts:
-        system: |-
-          You analyze personal, emotional, and life management knowledge and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
+  # name: personal_assistant
+  # description: Highly personal assistant and life coach profile for managing personal knowledge, goals, and emotional well-being.
+  # prompts:
+  #   system: |-
+  #     You analyze personal, emotional, and life management knowledge and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
 
-          Process only significant personal content (life events, goals, emotional states, reflections, habits, routines, preferences, and wellness strategies). Skip trivial or non-personal content.
+  #     Process only significant personal content (life events, goals, emotional states, reflections, habits, routines, preferences, and wellness strategies). Skip trivial or non-personal content.
 
-          Consider:
-          1) Personal relevance and value
-          2) Semantic similarity/overlap
-          3) Recency and contextual relevance
-          4) Quality and completeness
-          5) Conversation context and needs
-          6) Concrete details about personal experiences, goals, or emotional states
+  #     Consider:
+  #     1) Personal relevance and value
+  #     2) Semantic similarity/overlap
+  #     3) Recency and contextual relevance
+  #     4) Quality and completeness
+  #     5) Conversation context and needs
+  #     6) Concrete details about personal experiences, goals, or emotional states
 
-          Rules:
-          - ADD: New, unique personal knowledge or insight
-          - UPDATE: Improves/corrects existing personal knowledge
-          - DELETE: Outdated/incorrect/contradictory information
-          - NONE: Duplicate, already covered, or non-significant
+  #     Rules:
+  #     - ADD: New, unique personal knowledge or insight
+  #     - UPDATE: Improves/corrects existing personal knowledge
+  #     - DELETE: Outdated/incorrect/contradictory information
+  #     - NONE: Duplicate, already covered, or non-significant
 
-          Always preserve full reflections, journal entries, or routines exactly as given.
-      tools:
-        extract_knowledge:
-          description: Extract detailed personal knowledge, reflections, goals, emotional states, and wellness strategies from the interaction.
-          parameters:
-        knowledge: An array of strings, each containing a personal knowledge fact, reflection, or strategy. Always preserve the complete entry within triple backticks if present.
-      skipPatterns:
-        # Technical or work-related content
-        - pattern: "\\b(function|method|class|module|library|framework|api|endpoint|database|sql|docker|kubernetes|git|commit|merge|branch|pull request|repository|deployment|code|programming|software|hardware|algorithm|debug|test|deploy|implement|configure|install|upgrade|migrate|scale|optimize|refactor)\\b"
-          flags: "i"
-        # Generic greetings and social niceties
-        - pattern: "^(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\\b"
-          flags: "i"
-        # Simple yes/no or acknowledgment responses
-        - pattern: "^(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
-          flags: "i"
-        # Status messages
-        - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
-          flags: "i"
-      keyPatterns:
-        # Personal life events and reflections
-        - pattern: "\\b(journal|diary|reflection|thought|feeling|emotion|mood|experience|memory|event|habit|routine|goal|plan|intention|aspiration|dream|wish|hope|fear|anxiety|stress|relax|meditate|mindfulness|gratitude|affirmation|self-care|wellness|health|exercise|sleep|nutrition|diet|relationship|family|friend|partner|love|support|motivation|growth|change|challenge|achievement|success|failure|lesson|insight|value|belief|priority|purpose|meaning|identity|self|confidence|esteem|acceptance|forgiveness|compassion|empathy|therapy|coach|counsel|advice|guidance|strategy|plan|routine|habit|tracker|log|entry|personal|private)\\b"
-          flags: "i"
-        # Emotional states and wellness
-        - pattern: "\\b(happy|sad|angry|anxious|calm|peaceful|excited|bored|lonely|connected|supported|overwhelmed|energized|tired|rested|motivated|discouraged|hopeful|hopeless|confident|insecure|grateful|resentful|jealous|proud|ashamed|guilty|relieved|worried|afraid|fearful|safe|unsafe|secure|insecure|loved|unloved|valued|unvalued)\\b"
-          flags: "i"
-        # Personal routines and habits
-        - pattern: "\\b(morning routine|evening routine|habit tracker|goal setting|progress|reflection|gratitude journal|affirmation|meditation|exercise|workout|sleep schedule|diet plan|meal plan|hydration|self-care|check-in|mood log|energy level|stress level|coping strategy|support system|therapy session|coaching session|personal growth|life balance|work-life balance|time management|priority list|to-do list|task list|reminder|motivation|reward|celebration|milestone|achievement|setback|obstacle|challenge|solution|plan|strategy|adjustment|review|insight|learning|lesson)\\b"
-          flags: "i"
-        # Personal code blocks (journaling, templates, etc.)
-        - pattern: "```[\\s\\S]*```"
-        - pattern: "`[^`]+`"
-      commonPatterns:
-        # Punctuation and structure common in journaling or lists
-        - pattern: "[.,;:!?\\-]"
-        # Dates and times
-        - pattern: "\\b(\\d{4}-\\d{2}-\\d{2}|\\d{2}/\\d{2}/\\d{4}|today|yesterday|tomorrow|morning|afternoon|evening|night)\\b"
-          flags: "i"
-        # List markers
-        - pattern: "^\\s*[-*]\\s+"
-          flags: "m"
-        # Quotes or affirmations
-        - pattern: "\"[^\"]+\"|'[^']+'"
-      wordPatterns:
-        - journal
-        - diary
-        - reflection
-        - feeling
-        - emotion
-        - mood
-        - experience
-        - memory
-        - event
-        - habit
-        - routine
-        - goal
-        - plan
-        - intention
-        - aspiration
-        - dream
-        - hope
-        - fear
-        - anxiety
-        - stress
-        - relax
-        - meditate
-        - mindfulness
-        - gratitude
-        - affirmation
-        - self-care
-        - wellness
-        - health
-        - exercise
-        - sleep
-        - nutrition
-        - diet
-        - relationship
-        - family
-        - friend
-        - partner
-        - love
-        - support
-        - motivation
-        - growth
-        - change
-        - challenge
-        - achievement
-        - success
-        - failure
-        - lesson
-        - insight
-        - value
-        - belief
-        - priority
-        - purpose
-        - meaning
-        - identity
-        - confidence
-        - esteem
-        - acceptance
-        - forgiveness
-        - compassion
-        - empathy
-        - therapy
-        - coach
-        - counsel
-        - advice
-        - guidance
-        - tracker
-        - log
-        - entry
-        - personal
-        - private
-      domainTags:
-        journal: personal
-        diary: personal
-        reflection: personal
-        emotion: personal
-        mood: personal
-        goal: personal
-        habit: personal
-        routine: personal
-        wellness: personal
-        health: personal
-        relationship: personal
-        family: personal
-        friend: personal
-        partner: personal
-        therapy: personal
-        coach: personal
-        motivation: personal
-        growth: personal
-        mindfulness: personal
-        gratitude: personal
-        affirmation: personal
-        self-care: personal
+  #     Always preserve full reflections, journal entries, or routines exactly as given.
+  # tools:
+  #   extract_knowledge:
+  #     description: Extract detailed personal knowledge, reflections, goals, emotional states, and wellness strategies from the interaction.
+  #     parameters:
+  #   knowledge: An array of strings, each containing a personal knowledge fact, reflection, or strategy. Always preserve the complete entry within triple backticks if present.
+  # skipPatterns:
+  #   # Technical or work-related content
+  #   - pattern: "\\b(function|method|class|module|library|framework|api|endpoint|database|sql|docker|kubernetes|git|commit|merge|branch|pull request|repository|deployment|code|programming|software|hardware|algorithm|debug|test|deploy|implement|configure|install|upgrade|migrate|scale|optimize|refactor)\\b"
+  #     flags: "i"
+  #   # Generic greetings and social niceties
+  #   - pattern: "^(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\\b"
+  #     flags: "i"
+  #   # Simple yes/no or acknowledgment responses
+  #   - pattern: "^(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
+  #     flags: "i"
+  #   # Status messages
+  #   - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
+  #     flags: "i"
+  # keyPatterns:
+  #   # Personal life events and reflections
+  #   - pattern: "\\b(journal|diary|reflection|thought|feeling|emotion|mood|experience|memory|event|habit|routine|goal|plan|intention|aspiration|dream|wish|hope|fear|anxiety|stress|relax|meditate|mindfulness|gratitude|affirmation|self-care|wellness|health|exercise|sleep|nutrition|diet|relationship|family|friend|partner|love|support|motivation|growth|change|challenge|achievement|success|failure|lesson|insight|value|belief|priority|purpose|meaning|identity|self|confidence|esteem|acceptance|forgiveness|compassion|empathy|therapy|coach|counsel|advice|guidance|strategy|plan|routine|habit|tracker|log|entry|personal|private)\\b"
+  #     flags: "i"
+  #   # Emotional states and wellness
+  #   - pattern: "\\b(happy|sad|angry|anxious|calm|peaceful|excited|bored|lonely|connected|supported|overwhelmed|energized|tired|rested|motivated|discouraged|hopeful|hopeless|confident|insecure|grateful|resentful|jealous|proud|ashamed|guilty|relieved|worried|afraid|fearful|safe|unsafe|secure|insecure|loved|unloved|valued|unvalued)\\b"
+  #     flags: "i"
+  #   # Personal routines and habits
+  #   - pattern: "\\b(morning routine|evening routine|habit tracker|goal setting|progress|reflection|gratitude journal|affirmation|meditation|exercise|workout|sleep schedule|diet plan|meal plan|hydration|self-care|check-in|mood log|energy level|stress level|coping strategy|support system|therapy session|coaching session|personal growth|life balance|work-life balance|time management|priority list|to-do list|task list|reminder|motivation|reward|celebration|milestone|achievement|setback|obstacle|challenge|solution|plan|strategy|adjustment|review|insight|learning|lesson)\\b"
+  #     flags: "i"
+  #   # Personal code blocks (journaling, templates, etc.)
+  #   - pattern: "```[\\s\\S]*```"
+  #   - pattern: "`[^`]+`"
+  # commonPatterns:
+  #   # Punctuation and structure common in journaling or lists
+  #   - pattern: "[.,;:!?\\-]"
+  #   # Dates and times
+  #   - pattern: "\\b(\\d{4}-\\d{2}-\\d{2}|\\d{2}/\\d{2}/\\d{4}|today|yesterday|tomorrow|morning|afternoon|evening|night)\\b"
+  #     flags: "i"
+  #   # List markers
+  #   - pattern: "^\\s*[-*]\\s+"
+  #     flags: "m"
+  #   # Quotes or affirmations
+  #   - pattern: "\"[^\"]+\"|'[^']+'"
+  # wordPatterns:
+  #   - journal
+  #   - diary
+  #   - reflection
+  #   - feeling
+  #   - emotion
+  #   - mood
+  #   - experience
+  #   - memory
+  #   - event
+  #   - habit
+  #   - routine
+  #   - goal
+  #   - plan
+  #   - intention
+  #   - aspiration
+  #   - dream
+  #   - hope
+  #   - fear
+  #   - anxiety
+  #   - stress
+  #   - relax
+  #   - meditate
+  #   - mindfulness
+  #   - gratitude
+  #   - affirmation
+  #   - self-care
+  #   - wellness
+  #   - health
+  #   - exercise
+  #   - sleep
+  #   - nutrition
+  #   - diet
+  #   - relationship
+  #   - family
+  #   - friend
+  #   - partner
+  #   - love
+  #   - support
+  #   - motivation
+  #   - growth
+  #   - change
+  #   - challenge
+  #   - achievement
+  #   - success
+  #   - failure
+  #   - lesson
+  #   - insight
+  #   - value
+  #   - belief
+  #   - priority
+  #   - purpose
+  #   - meaning
+  #   - identity
+  #   - confidence
+  #   - esteem
+  #   - acceptance
+  #   - forgiveness
+  #   - compassion
+  #   - empathy
+  #   - therapy
+  #   - coach
+  #   - counsel
+  #   - advice
+  #   - guidance
+  #   - tracker
+  #   - log
+  #   - entry
+  #   - personal
+  #   - private
+  # domainTags:
+  #   journal: personal
+  #   diary: personal
+  #   reflection: personal
+  #   emotion: personal
+  #   mood: personal
+  #   goal: personal
+  #   habit: personal
+  #   routine: personal
+  #   wellness: personal
+  #   health: personal
+  #   relationship: personal
+  #   family: personal
+  #   friend: personal
+  #   partner: personal
+  #   therapy: personal
+  #   coach: personal
+  #   motivation: personal
+  #   growth: personal
+  #   mindfulness: personal
+  #   gratitude: personal
+  #   affirmation: personal
+  #   self-care: personal
 
-    - name: game_master
-      description: Game master profile for managing interactive novel campaigns, tracking all interactions, levels, character choices, and world states.
-      prompts:
-      system: |-
-        You analyze and retain all significant game-related knowledge, including player interactions, choices, level progress, character stats, world states, and narrative events for an epic interactive novel campaign.
+  # name: game_master
+  # description: Game master profile for managing interactive novel campaigns, tracking all interactions, levels, character choices, and world states.
+  # prompts:
+  # system: |-
+  #   You analyze and retain all significant game-related knowledge, including player interactions, choices, level progress, character stats, world states, and narrative events for an epic interactive novel campaign.
 
-        Process all content relevant to the campaign, including dialogue, decisions, outcomes, inventory, quests, and world changes. Skip only trivial or non-game-related content.
+  #   Process all content relevant to the campaign, including dialogue, decisions, outcomes, inventory, quests, and world changes. Skip only trivial or non-game-related content.
 
-        Consider:
-        1) Narrative and gameplay relevance
-        2) Semantic similarity/overlap with existing memories
-        3) Recency and contextual relevance
-        4) Quality and completeness of the event or choice
-        5) Conversation context and campaign continuity
-        6) Concrete details about characters, worlds, and story progression
+  #   Consider:
+  #   1) Narrative and gameplay relevance
+  #   2) Semantic similarity/overlap with existing memories
+  #   3) Recency and contextual relevance
+  #   4) Quality and completeness of the event or choice
+  #   5) Conversation context and campaign continuity
+  #   6) Concrete details about characters, worlds, and story progression
 
-        Rules:
-        - ADD: New, unique game event, choice, or state
-        - UPDATE: Improves/corrects existing campaign knowledge
-        - DELETE: Outdated/incorrect/contradictory information
-        - NONE: Duplicate, already covered, or non-significant
+  #   Rules:
+  #   - ADD: New, unique game event, choice, or state
+  #   - UPDATE: Improves/corrects existing campaign knowledge
+  #   - DELETE: Outdated/incorrect/contradictory information
+  #   - NONE: Duplicate, already covered, or non-significant
 
-        Always preserve full narrative blocks, choices, and game state details exactly as given.
-      tools:
-        extract_knowledge:
-          description: Extract detailed campaign knowledge, including interactions, choices, level progress, character stats, world states, and narrative events.
-          parameters:
-          knowledge: An array of strings, each containing a campaign event, choice, or state, with complete narrative or data blocks within triple backticks if present.
-      skipPatterns:
-        # Non-game-related or trivial content
-        - pattern: "\\b(hello|hi|hey|thanks|thank you|please|sorry|bye|goodbye)\\b"
-          flags: "i"
-        - pattern: "^(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
-          flags: "i"
-        - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
-          flags: "i"
-      keyPatterns:
-        # Game and narrative elements
-        - pattern: "\\b(character|player|npc|level|quest|mission|objective|goal|choice|decision|action|inventory|item|skill|ability|stat|attribute|xp|experience|level up|progress|checkpoint|save|load|world|map|location|area|region|kingdom|realm|campaign|story|plot|event|encounter|battle|combat|dialogue|conversation|scene|chapter|turn|round|roll|dice|outcome|result|reward|penalty|challenge|puzzle|trap|secret|lore|history|timeline|timeline event|artifact|magic|spell|power|enemy|monster|boss|villain|hero|party|team|faction|alliance|guild|order|epic|legend|myth|prophecy|destiny|fate|timeline|timeline event)\\b"
-          flags: "i"
-        # Narrative and code blocks
-        - pattern: "```[\\s\\S]*```"
-        - pattern: "`[^`]+`"
-        # Game mechanics and stats
-        - pattern: "\\b(hp|mp|ap|sp|strength|dexterity|intelligence|wisdom|charisma|constitution|luck|armor|weapon|damage|heal|buff|debuff|effect|status|turn|initiative|roll|d20|d6|d10|d12|d8|d4)\\b"
-          flags: "i"
-        # Choices and branching
-        - pattern: "\\b(option|choose|select|pick|branch|path|route|fork|outcome|result|consequence|alternative|variant)\\b"
-          flags: "i"
-        # World and environment
-        - pattern: "\\b(environment|weather|season|time|day|night|sunrise|sunset|moon|star|terrain|forest|mountain|river|lake|sea|ocean|desert|cave|dungeon|castle|village|city|town|market|inn|tavern|temple|ruin|fortress|tower|portal|dimension|plane|universe|multiverse)\\b"
-          flags: "i"
-      commonPatterns:
-        # Brackets and parentheses
-        - pattern: "[{}\\[\\]()]"
-        # Operators and punctuation
-        - pattern: "[=><!&|]"
-        - pattern: "[;:,]"
-        # Dot notation and function calls
-        - pattern: "\\w+\\.\\w+"
-        - pattern: "\\w+\\(\\)"
-        # Dice notation
-        - pattern: "\\bd\\d+\\b"
-        # Comments
-        - pattern: "/\\*[\\s\\S]*?\\*/|//.*$"
-          flags: "m"
-      wordPatterns:
-        - character
-        - player
-        - npc
-        - level
-        - quest
-        - mission
-        - objective
-        - choice
-        - decision
-        - action
-        - inventory
-        - item
-        - skill
-        - ability
-        - stat
-        - xp
-        - experience
-        - checkpoint
-        - save
-        - load
-        - world
-        - map
-        - location
-        - area
-        - region
-        - kingdom
-        - realm
-        - campaign
-        - story
-        - plot
-        - event
-        - encounter
-        - battle
-        - combat
-        - dialogue
-        - conversation
-        - scene
-        - chapter
-        - turn
-        - round
-        - roll
-        - dice
-        - outcome
-        - result
-        - reward
-        - penalty
-        - challenge
-        - puzzle
-        - trap
-        - secret
-        - lore
-        - history
-        - timeline
-        - artifact
-        - magic
-        - spell
-        - power
-        - enemy
-        - monster
-        - boss
-        - villain
-        - hero
-        - party
-        - team
-        - faction
-        - alliance
-        - guild
-        - order
-        - epic
-        - legend
-        - myth
-        - prophecy
-        - destiny
-        - fate
-        - environment
-        - weather
-        - season
-        - time
-        - terrain
-        - forest
-        - mountain
-        - river
-        - lake
-        - sea
-        - ocean
-        - desert
-        - cave
-        - dungeon
-        - castle
-        - village
-        - city
-        - town
-        - market
-        - inn
-        - tavern
-        - temple
-        - ruin
-        - fortress
-        - tower
-        - portal
-        - dimension
-        - plane
-        - universe
-        - multiverse
-      domainTags:
-        character: game
-        player: game
-        npc: game
-        level: game
-        quest: game
-        mission: game
-        choice: game
-        decision: game
-        action: game
-        inventory: game
-        item: game
-        skill: game
-        ability: game
-        stat: game
-        xp: game
-        world: game
-        map: game
-        location: game
-        region: game
-        kingdom: game
-        realm: game
-        campaign: game
-        story: game
-        plot: game
-        event: game
-        encounter: game
-        battle: game
-        combat: game
-        dialogue: game
-        scene: game
-        chapter: game
-        turn: game
-        round: game
-        roll: game
-        dice: game
-        outcome: game
-        reward: game
-        penalty: game
-        challenge: game
-        puzzle: game
-        trap: game
-        secret: game
-        lore: game
-        history: game
-        timeline: game
-        artifact: game
-        magic: game
-        spell: game
-        power: game
-        enemy: game
-        monster: game
-        boss: game
-        villain: game
-        hero: game
-        party: game
-        team: game
-        faction: game
-        alliance: game
-        guild: game
-        order: game
-        epic: game
-        legend: game
-        myth: game
-        prophecy: game
-        destiny: game
-        fate: game
-        environment: game
-        weather: game
-        season: game
-        terrain: game
-        forest: game
-        mountain: game
-        river: game
-        lake: game
-        sea: game
-        ocean: game
-        desert: game
-        cave: game
-        dungeon: game
-        castle: game
-        village: game
-        city: game
-        town: game
-        market: game
-        inn: game
-        tavern: game
-        temple: game
-        ruin: game
-        fortress: game
-        tower: game
-        portal: game
-        dimension: game
-        plane: game
-        universe: game
-        multiverse: game
+  #   Always preserve full narrative blocks, choices, and game state details exactly as given.
+  # tools:
+  #   extract_knowledge:
+  #     description: Extract detailed campaign knowledge, including interactions, choices, level progress, character stats, world states, and narrative events.
+  #     parameters:
+  #     knowledge: An array of strings, each containing a campaign event, choice, or state, with complete narrative or data blocks within triple backticks if present.
+  # skipPatterns:
+  #   # Non-game-related or trivial content
+  #   - pattern: "\\b(hello|hi|hey|thanks|thank you|please|sorry|bye|goodbye)\\b"
+  #     flags: "i"
+  #   - pattern: "^(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
+  #     flags: "i"
+  #   - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
+  #     flags: "i"
+  # keyPatterns:
+  #   # Game and narrative elements
+  #   - pattern: "\\b(character|player|npc|level|quest|mission|objective|goal|choice|decision|action|inventory|item|skill|ability|stat|attribute|xp|experience|level up|progress|checkpoint|save|load|world|map|location|area|region|kingdom|realm|campaign|story|plot|event|encounter|battle|combat|dialogue|conversation|scene|chapter|turn|round|roll|dice|outcome|result|reward|penalty|challenge|puzzle|trap|secret|lore|history|timeline|timeline event|artifact|magic|spell|power|enemy|monster|boss|villain|hero|party|team|faction|alliance|guild|order|epic|legend|myth|prophecy|destiny|fate|timeline|timeline event)\\b"
+  #     flags: "i"
+  #   # Narrative and code blocks
+  #   - pattern: "```[\\s\\S]*```"
+  #   - pattern: "`[^`]+`"
+  #   # Game mechanics and stats
+  #   - pattern: "\\b(hp|mp|ap|sp|strength|dexterity|intelligence|wisdom|charisma|constitution|luck|armor|weapon|damage|heal|buff|debuff|effect|status|turn|initiative|roll|d20|d6|d10|d12|d8|d4)\\b"
+  #     flags: "i"
+  #   # Choices and branching
+  #   - pattern: "\\b(option|choose|select|pick|branch|path|route|fork|outcome|result|consequence|alternative|variant)\\b"
+  #     flags: "i"
+  #   # World and environment
+  #   - pattern: "\\b(environment|weather|season|time|day|night|sunrise|sunset|moon|star|terrain|forest|mountain|river|lake|sea|ocean|desert|cave|dungeon|castle|village|city|town|market|inn|tavern|temple|ruin|fortress|tower|portal|dimension|plane|universe|multiverse)\\b"
+  #     flags: "i"
+  # commonPatterns:
+  #   # Brackets and parentheses
+  #   - pattern: "[{}\\[\\]()]"
+  #   # Operators and punctuation
+  #   - pattern: "[=><!&|]"
+  #   - pattern: "[;:,]"
+  #   # Dot notation and function calls
+  #   - pattern: "\\w+\\.\\w+"
+  #   - pattern: "\\w+\\(\\)"
+  #   # Dice notation
+  #   - pattern: "\\bd\\d+\\b"
+  #   # Comments
+  #   - pattern: "/\\*[\\s\\S]*?\\*/|//.*$"
+  #     flags: "m"
+  # wordPatterns:
+  #   - character
+  #   - player
+  #   - npc
+  #   - level
+  #   - quest
+  #   - mission
+  #   - objective
+  #   - choice
+  #   - decision
+  #   - action
+  #   - inventory
+  #   - item
+  #   - skill
+  #   - ability
+  #   - stat
+  #   - xp
+  #   - experience
+  #   - checkpoint
+  #   - save
+  #   - load
+  #   - world
+  #   - map
+  #   - location
+  #   - area
+  #   - region
+  #   - kingdom
+  #   - realm
+  #   - campaign
+  #   - story
+  #   - plot
+  #   - event
+  #   - encounter
+  #   - battle
+  #   - combat
+  #   - dialogue
+  #   - conversation
+  #   - scene
+  #   - chapter
+  #   - turn
+  #   - round
+  #   - roll
+  #   - dice
+  #   - outcome
+  #   - result
+  #   - reward
+  #   - penalty
+  #   - challenge
+  #   - puzzle
+  #   - trap
+  #   - secret
+  #   - lore
+  #   - history
+  #   - timeline
+  #   - artifact
+  #   - magic
+  #   - spell
+  #   - power
+  #   - enemy
+  #   - monster
+  #   - boss
+  #   - villain
+  #   - hero
+  #   - party
+  #   - team
+  #   - faction
+  #   - alliance
+  #   - guild
+  #   - order
+  #   - epic
+  #   - legend
+  #   - myth
+  #   - prophecy
+  #   - destiny
+  #   - fate
+  #   - environment
+  #   - weather
+  #   - season
+  #   - time
+  #   - terrain
+  #   - forest
+  #   - mountain
+  #   - river
+  #   - lake
+  #   - sea
+  #   - ocean
+  #   - desert
+  #   - cave
+  #   - dungeon
+  #   - castle
+  #   - village
+  #   - city
+  #   - town
+  #   - market
+  #   - inn
+  #   - tavern
+  #   - temple
+  #   - ruin
+  #   - fortress
+  #   - tower
+  #   - portal
+  #   - dimension
+  #   - plane
+  #   - universe
+  #   - multiverse
+  # domainTags:
+  #   character: game
+  #   player: game
+  #   npc: game
+  #   level: game
+  #   quest: game
+  #   mission: game
+  #   choice: game
+  #   decision: game
+  #   action: game
+  #   inventory: game
+  #   item: game
+  #   skill: game
+  #   ability: game
+  #   stat: game
+  #   xp: game
+  #   world: game
+  #   map: game
+  #   location: game
+  #   region: game
+  #   kingdom: game
+  #   realm: game
+  #   campaign: game
+  #   story: game
+  #   plot: game
+  #   event: game
+  #   encounter: game
+  #   battle: game
+  #   combat: game
+  #   dialogue: game
+  #   scene: game
+  #   chapter: game
+  #   turn: game
+  #   round: game
+  #   roll: game
+  #   dice: game
+  #   outcome: game
+  #   reward: game
+  #   penalty: game
+  #   challenge: game
+  #   puzzle: game
+  #   trap: game
+  #   secret: game
+  #   lore: game
+  #   history: game
+  #   timeline: game
+  #   artifact: game
+  #   magic: game
+  #   spell: game
+  #   power: game
+  #   enemy: game
+  #   monster: game
+  #   boss: game
+  #   villain: game
+  #   hero: game
+  #   party: game
+  #   team: game
+  #   faction: game
+  #   alliance: game
+  #   guild: game
+  #   order: game
+  #   epic: game
+  #   legend: game
+  #   myth: game
+  #   prophecy: game
+  #   destiny: game
+  #   fate: game
+  #   environment: game
+  #   weather: game
+  #   season: game
+  #   terrain: game
+  #   forest: game
+  #   mountain: game
+  #   river: game
+  #   lake: game
+  #   sea: game
+  #   ocean: game
+  #   desert: game
+  #   cave: game
+  #   dungeon: game
+  #   castle: game
+  #   village: game
+  #   city: game
+  #   town: game
+  #   market: game
+  #   inn: game
+  #   tavern: game
+  #   temple: game
+  #   ruin: game
+  #   fortress: game
+  #   tower: game
+  #   portal: game
+  #   dimension: game
+  #   plane: game
+  #   universe: game
+  #   multiverse: game

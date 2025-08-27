@@ -7,8 +7,126 @@ import {
 	MEMORY_OPERATION_PROMPTS,
 	extractTechnicalTags,
 } from './memory_operation.js';
+export { MemAgentStateManager } from '../../../../../core/brain/memAgent/state-manager.js';
+
 // Import payload migration utilities
 import { createKnowledgePayload, extractKnowledgeInfo, mergeKnowledgeInfo } from './payloads.js';
+
+/**
+ * Determines if a piece of content is significant enough to be extracted as knowledge
+ */
+function isSignificantKnowledge2(content: string, memoryProfile: any): boolean {
+  if (!content || content.trim().length === 0) {
+    return false;
+  }
+
+  const text = content.toLowerCase().trim();
+
+  // Skip trivial tool results and non-technical content
+  // const skipPatterns = [
+  //   // Personal information and identity
+  //   /\b(my name|user['']?s? name|find my name|search.*name|who am i|what['']?s my name)\b/i,
+  //   /\b(personal|profile|identity|username|login|password|email|address|phone)\b/i,
+
+  //   // Trivial search queries without technical context
+  //   /^(user:|assistant:)?\s*(search|find|look|what|where|who|when|why|how)\s+(is|are|was|were|do|does|did|can|could|should|would|will|my|the|a|an)\b/i,
+
+  //   // Simple greetings and social interactions
+  //   /^(user:|assistant:)?\s*(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\b/i,
+
+  //   // Tool results with no meaningful content
+  //   /^(cipher_memory_search|memory_search):\s*(found|completed|no results|error)/i,
+
+  //   // Generic status messages
+  //   /^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\b/i,
+
+  //   // Simple yes/no or acknowledgment responses
+  //   /^(user:|assistant:)?\s*(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\s*[.!?]?\s*$/i,
+  // ];
+
+  // Convert to RegExp objects
+  const skipPatterns = (memoryProfile as any).skipPatterns
+	? (memoryProfile as any).skipPatterns.map(
+		({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
+	)
+	: [];
+
+  if (skipPatterns.some(rx => rx.test(text))) {
+    return false;
+  }
+
+
+  // key content
+  const keyPatterns = (memoryProfile as any).keyPatterns
+	? (memoryProfile as any).keyPatterns.map(
+		({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
+	)
+	: [];
+
+  // Check if content contains key patterns
+  if (keyPatterns.some(rx => rx.test(text))) {
+    return true;
+  }
+
+  // Check for code-like patterns (contains special characters typical in code)
+  const commonPatterns = (memoryProfile as any).commonPatterns
+	? (memoryProfile as any).commonPatterns.map(
+		({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
+	)
+	: [];
+
+  let commonPatternMatches = 0;
+  for (const pattern of commonPatterns) {
+    if (pattern.test(text)) {
+      commonPatternMatches++;
+    }
+  }
+
+  // If multiple code patterns match, consider it significant
+  if (commonPatternMatches >= 2) {
+    return true;
+  }
+
+  // Check technical words density
+  const wordPatterns = (memoryProfile as any).wordPatterns;
+
+  const words = text.split(/\s+/);
+  const wordCount = words.filter(word =>
+    wordPatterns.includes(word.replace(/[^\w]/g, ''))
+  ).length;
+
+  // If more than 10% of words are technical, consider it significant
+  const wordDensity = wordCount / words.length;
+  if (wordDensity > 0.1 && words.length > 5) {
+    return true;
+  }
+
+  // Check minimum length and complexity
+  if (text.length < 20) {
+    return false;
+  }
+
+  // //Check for programming-specific patterns that indicate technical content
+  // //Should be covered already in keyPatterns
+  // const programmingKeywords =
+  //   /\b(code|coding|program|programming|develop|development|software|hardware|tech|technical|digital|computer|computing|algorithm|logic|syntax|semantic|compile|runtime|execute|debug|test|deploy|implement|configure|setup|install|upgrade|migrate|scale|optimize|refactor)\b/i;
+
+  // if (programmingKeywords.test(text)) {
+  //   return true;
+  // }
+
+  // Optionally use memoryProfile for additional filtering (example: allowedDomains)
+  if (memoryProfile?.allowedDomains && Array.isArray(memoryProfile.allowedDomains)) {
+    for (const domain of memoryProfile.allowedDomains) {
+      if (text.includes(domain.toLowerCase())) {
+        return true;
+      }
+    }
+  }
+
+  // Default to false for non-technical content
+  return false;
+}
 
 /**
  * Determines if a piece of content is significant enough to be extracted as knowledge

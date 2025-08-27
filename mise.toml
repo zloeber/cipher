@@ -1,3 +1,6 @@
+[env]
+_.source = './.envrc'
+
 [tools]
 task = "latest"
 ollama = "latest"
@@ -6,4 +9,3 @@ gh = "latest"
 gitleaks = "latest"
 node = "20.18.1"
 pnpm = "latest"
-#"npm:@byterover/cipher" = "latest"

@@ -116,8 +116,7 @@ program
 		'--mcp-dns-rebinding-protection',
 		'Enable DNS rebinding protection for MCP server',
 		false
-	)
-	.option('--memory-profile <profile>', 'Memory profile to use (default: default)', 'default')
+	);
 
 program
 	.description(
