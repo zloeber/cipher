@@ -5,7 +5,7 @@ import { logger } from '../../../../logger/index.js';
 import {
 	parseLLMDecision,
 	MEMORY_OPERATION_PROMPTS,
-	extractTechnicalTags,
+	extractFactTags
 } from './memory_operation.js';
 export { MemAgentStateManager } from '../../../../../core/brain/memAgent/state-manager.js';
 
@@ -148,6 +148,7 @@ function inferDomainFromTags(tags: string[], memoryProfile: any): string | undef
   const domainMapping = (profile as any).domainMapping || {};
   for (const tag of tags) {
 		if (domainMapping[tag.toLowerCase()]) {
+			logger.debug(`InferDomainFromTags: Found domain '${domainMapping[tag.toLowerCase()]}' for tag '${tag}'`);
 			return domainMapping[tag.toLowerCase()];
 		}
 	}
@@ -422,12 +423,14 @@ export const extractAndOperateMemoryTool: InternalTool = {
 				logger.warn(
 					'ExtractAndOperateMemory: No services context available, using basic processing'
 				);
+				const memoryProfile =
+					context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
 				// Return basic processing without vector operations
 				const basicMemoryActions = significantFacts.map((fact, i) => ({
 					id: generateSafeMemoryId(i),
 					text: fact,
 					event: 'ADD' as const,
-					tags: extractTechnicalTags(fact),
+					tags: extractFactTags(fact, memoryProfile),
 					confidence: 0.7,
 				}));
 
@@ -453,11 +456,13 @@ export const extractAndOperateMemoryTool: InternalTool = {
 				logger.warn(
 					'ExtractAndOperateMemory: Missing embedding or vector services, falling back to basic processing'
 				);
+				const memoryProfile =
+					context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
 				const basicMemoryActions = significantFacts.map((fact, i) => ({
 					id: generateSafeMemoryId(i),
 					text: fact,
 					event: 'ADD' as const,
-					tags: extractTechnicalTags(fact),
+					tags: extractFactTags(fact, memoryProfile),
 					confidence: 0.6,
 				}));
 
@@ -493,11 +498,13 @@ export const extractAndOperateMemoryTool: InternalTool = {
 				logger.warn(
 					'ExtractAndOperateMemory: Embedder or vector store not available, using basic processing'
 				);
+				const memoryProfile =
+					context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
 				const basicMemoryActions = significantFacts.map((fact, i) => ({
 					id: generateSafeMemoryId(i),
 					text: fact,
 					event: 'ADD' as const,
-					tags: extractTechnicalTags(fact),
+					tags: extractFactTags(fact, memoryProfile),
 					confidence: 0.6,
 				}));
 
@@ -716,6 +723,10 @@ export const extractAndOperateMemoryTool: InternalTool = {
 							similarityThreshold: options.similarityThreshold.toFixed(2),
 						});
 					}
+					// Enforce confidence threshold if specified
+					logger.debug('ExtractAndOperateMemory: Finalizing action with confidence checks');
+					const memoryProfile =
+						context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
 
 					memoryActions.push({
 						id:
@@ -726,10 +737,14 @@ export const extractAndOperateMemoryTool: InternalTool = {
 									: generateSafeMemoryId(i),
 						text: fact,
 						event: action,
-						tags: extractTechnicalTags(fact),
+						tags: extractFactTags(fact, memoryProfile),
 						confidence,
 					});
-
+					logger.debug(`ExtractAndOperateMemory: Finalized action for fact ${i + 1}`, {
+						action,
+						confidence,
+						targetId,
+					});
 					memorySummaries.push({
 						factPreview: fact.substring(0, 80),
 						action,
@@ -742,12 +757,15 @@ export const extractAndOperateMemoryTool: InternalTool = {
 						factPreview: fact.substring(0, 50),
 					});
 
+					const memoryProfile =
+						context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
+
 					// Add fallback action for failed fact
 					memoryActions.push({
 						id: generateSafeMemoryId(i),
 						text: fact,
 						event: 'ADD',
-						tags: extractTechnicalTags(fact),
+						tags: extractFactTags(fact, memoryProfile),
 						confidence: 0.4,
 					});
 				}
@@ -779,10 +797,9 @@ export const extractAndOperateMemoryTool: InternalTool = {
 						let qualitySource: 'similarity' | 'llm' | 'heuristic' = 'heuristic';
 						// Default to heuristic since reasoning field is removed
 						qualitySource = 'heuristic';
-
+						logger.debug(`ExtractAndOperateMemory: Using ${qualitySource} for memory ${action.id}`);
 						// Create V2 payload with enhanced metadata
-            const memoryProfile =
-					    context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
+						const memoryProfile = context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
 						const domainFromTags = inferDomainFromTags(action.tags, memoryProfile);
 						const options: any = {
 							qualitySource,
@@ -794,6 +811,7 @@ export const extractAndOperateMemoryTool: InternalTool = {
 
 						// Merge knowledge info (agent-provided takes precedence over extraction)
 						if (args.options?.autoExtractKnowledgeInfo !== false) {
+							logger.debug(`ExtractAndOperateMemory: Auto-extracting knowledgeInfo for memory ${action.id}`);
 							const llmKnowledge = args.knowledgeInfo || {};
 							const extractedKnowledge = extractKnowledgeInfo(action.text);
 							const merged = mergeKnowledgeInfo(llmKnowledge, extractedKnowledge);
@@ -801,6 +819,7 @@ export const extractAndOperateMemoryTool: InternalTool = {
 							if (merged.codePattern) options.code_pattern = merged.codePattern;
 						} else {
 							// No extraction: only use provided knowledgeInfo or fallback to tags
+							logger.debug(`ExtractAndOperateMemory: Using provided knowledgeInfo for memory ${action.id}`);
 							if (args.knowledgeInfo?.domain) {
 								options.domain = args.knowledgeInfo.domain;
 							} else if (domainFromTags) {
@@ -811,6 +830,7 @@ export const extractAndOperateMemoryTool: InternalTool = {
 							}
 						}
 						if ('old_memory' in action && action.old_memory) {
+							logger.info(`ExtractAndOperateMemory: Using old_memory for memory ${action.id}`);
 							options.old_memory = action.old_memory;
 						}
 

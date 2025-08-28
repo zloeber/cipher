@@ -13,138 +13,16 @@ mcpServers: {}
 
 # Choose ONLY ONE of the following LLM providers
 llm:
-  # provider: openai
-  # model: gpt-4.1-mini
-  # apiKey: $OPENAI_API_KEY
-  # maxIterations: 50
-
-  # provider: gemini
-  # model: gemini-2.5-flash
-  # apiKey: $GEMINI_API_KEY
-  # maxIterations: 50
-
-  # provider: anthropic
-  # model: claude-3-5-haiku-20241022
-  # apiKey: $ANTHROPIC_API_KEY
-  # maxIterations: 50
-
-  # provider: openrouter
-  # model: google/gemini-2.5-pro
-  # apiKey: $OPENROUTER_API_KEY
-  # maxIterations: 50
-
-  # provider: qwen
-  # model: qwen3-14b
-  # apiKey: $QWEN_API_KEY
-  # maxIterations: 50
-  # qwenOptions:
-  #   enableThinking: false
-
-# --- AWS Bedrock LLM Configuration ---
-  # provider: aws
-  # model: us.anthropic.claude-3-5-sonnet-20241022-v2:0  # Or another Bedrock-supported model
-  # maxIterations: 50
-  # aws:
-  #   region: $AWS_REGION
-  #   accessKeyId: $AWS_ACCESS_KEY_ID
-  #   secretAccessKey: $AWS_SECRET_ACCESS_KEY
-  #   sessionToken: $AWS_SESSION_TOKEN   # Optional, for temporary credentials
-
-# --- Azure OpenAI LLM Configuration ---
-#   provider: azure
-#   model: gpt-4o-mini  # Or your Azure deployment/model name
-#   apiKey: $AZURE_OPENAI_API_KEY
-#   maxIterations: 50
-#   azure:
-#     endpoint: $AZURE_OPENAI_ENDPOINT
-#     deploymentName: gpt-4o-mini  # Optional, defaults to model name
-
-# --- Ollama LLM Configuration (Sample, Commented Out) ---
   provider: ollama
   model: qwen3:8b      # Use the model you downloaded
   maxIterations: 50
   baseURL: $OLLAMA_BASE_URL
 
-# --- LM Studio LLM Configuration (Sample, Commented Out) ---
-  # provider: lmstudio
-  # model: hermes-2-pro-llama-3-8b      # Use the model you have loaded
-  # maxIterations: 50
-  # baseURL: $LMSTUDIO_BASE_URL
-
-# Embedding configuration: ONLY ONE of the following
-#OpenAI:
-
-#embedding:
-  # type: openai
-  # model: text-embedding-3-small
-  # apiKey: $OPENAI_API_KEY
-
-# Gemini:
-# embedding:
-#   type: gemini
-#   model: gemini-embedding-001
-#   apiKey: $GEMINI_API_KEY
-
-# Ollama:
 embedding:
   type: ollama
   model: mxbai-embed-large
   baseUrl: $OLLAMA_BASE_URL
   dimensions: 1024
-
-# LM Studio:
-# embedding:
-#   type: lmstudio
-#   model: nomic-embed-text-v1.5
-#   baseUrl: $LMSTUDIO_BASE_URL
-
-# Voyage (for Anthropic/Claude users):
-# embedding:
-#   type: voyage
-#   model: voyage-3-large     #(1024, 256, 512, 2048)
-#   apiKey: $VOYAGE_API_KEY
-#   dimensions: 1024
-
-# Qwen:
-# embedding:
-#   type: qwen
-#   model: text-embedding-v3
-#   apiKey: $QWEN_API_KEY
-#   dimensions: 1024          # (1024, 768 or 512)
-
-# AWS Bedrock:
-# embedding:
-#   type: aws-bedrock
-#   model: amazon.titan-embed-text-v2:0   # or cohere.embed-english-v3
-#   region: $AWS_REGION
-#   accessKeyId: $AWS_ACCESS_KEY_ID
-#   secretAccessKey: $AWS_SECRET_ACCESS_KEY
-#   sessionToken: $AWS_SESSION_TOKEN       # Optional, for temporary credentials
-#   dimensions: 1024                       # 1024 (default), 512, or 256 for Titan V2
-#   timeout: 30000
-#   maxRetries: 3
-
-# Azure OpenAI:
-# embedding:
-#   type: openai
-#   model: text-embedding-3-small
-#   apiKey: $AZURE_OPENAI_API_KEY
-#   baseUrl: $AZURE_OPENAI_ENDPOINT        # e.g., https://your-resource.openai.azure.com
-#   dimensions: 1536                       # Optional: depends on model
-#   timeout: 30000
-#   maxRetries: 3
-
-# Disable embeddings entirely:
-# embedding:
-#   disabled: true
-
-
-
-# Evaluation LLM configuration (non-thinking model for evaluation step)
-# evalLlm:
-#   provider: anthropic
-#   model: claude-3-7-sonnet-20250219
-#   apiKey: $ANTHROPIC_API_KEY
 
 # System prompt - User customizable
 # This prompt will be combined with built-in tool usage instructions
@@ -357,12 +235,12 @@ memoryProfile:
     ability: game
     stat: game
     xp: game
-    world: game
-    map: game
-    location: game
-    region: game
-    kingdom: game
-    realm: game
+    world: level
+    map: level
+    location: level
+    region: level
+    kingdom: level
+    realm: level
     campaign: game
     story: game
     plot: game
@@ -387,10 +265,10 @@ memoryProfile:
     lore: game
     history: game
     timeline: game
-    artifact: game
-    magic: game
-    spell: game
-    power: game
+    artifact: inventory
+    magic: skill
+    spell: skill
+    power: skill
     enemy: game
     monster: game
     boss: game
@@ -437,3 +315,110 @@ memoryProfile:
     plane: game
     universe: game
     multiverse: game
+
+  extractablePatterns: []
+    # - pattern: /```[\s\S]*?```/
+    # - pattern: /`[^`]+`/
+    # - pattern: /\$\s+[^\n]+/
+    # - pattern: /(npm|yarn|pnpm)\s+[^\n]+/
+    # - pattern: /(git)\s+[^\n]+/
+    # - pattern: /(docker)\s+[^\n]+/
+    # - pattern: /(curl|wget)\s+[^\n]+/
+
+  # Tags that are extracted from knowledge
+  tagMap:
+    character: character
+    player: player
+    npc: npc
+    level: level
+    quest: quest
+    mission: mission
+    choice: choice
+    decision: decision
+    action: action
+    inventory: inventory
+    item: item
+    skill: skill
+    ability: ability
+    stat: stat
+    xp: xp
+    world: world
+    map: map
+    location: location
+    region: region
+    kingdom: kingdom
+    realm: realm
+    campaign: campaign
+    story: story
+    plot: plot
+    event: event
+    encounter: encounter
+    battle: battle
+    combat: combat
+    dialogue: dialogue
+    scene: scene
+    chapter: chapter
+    turn: turn
+    round: round
+    roll: roll
+    dice: dice
+    outcome: outcome
+    reward: reward
+    penalty: penalty
+    challenge: challenge
+    puzzle: puzzle
+    trap: trap
+    secret: secret
+    lore: lore
+    history: history
+    timeline: timeline
+    artifact: artifact
+    magic: magic
+    spell: spell
+    power: power
+    enemy: enemy
+    monster: monster
+    boss: boss
+    villain: villain
+    hero: hero
+    party: party
+    team: team
+    faction: faction
+    alliance: alliance
+    guild: guild
+    order: order
+    epic: epic
+    legend: legend
+    myth: myth
+    prophecy: prophecy
+    destiny: destiny
+    fate: fate
+    environment: environment
+    weather: weather
+    season: season
+    terrain: terrain
+    forest: forest
+    mountain: mountain
+    river: river
+    lake: lake
+    sea: sea
+    ocean: ocean
+    desert: desert
+    cave: cave
+    dungeon: dungeon
+    castle: castle
+    village: village
+    city: city
+    town: town
+    market: market
+    inn: inn
+    tavern: tavern
+    temple: temple
+    ruin: ruin
+    fortress: fortress
+    tower: tower
+    portal: portal
+    dimension: dimension
+    plane: plane
+    universe: universe
+    multiverse: multiverse

@@ -463,7 +463,7 @@ export class ContextManager {
 			const messageTokenCounts = await this.calculateMessageTokens();
 			this.currentTokenCount = messageTokenCounts.reduce((sum, count) => sum + count, 0);
 
-			logger.info(
+			logger.debug(
 				`[TokenAware] Token count updated: ${this.currentTokenCount} tokens for ${this.messages.length} messages`
 			);
 		} catch (error) {
@@ -513,7 +513,7 @@ export class ContextManager {
 		this.logCompressionWarningIfNeeded(utilization);
 
 		if (this.compressionStrategy!.shouldCompress(this.currentTokenCount)) {
-			logger.info(
+			logger.debug(
 				`[TokenAware] Compression threshold reached (${Math.round(utilization * 100)}%), starting compression...`
 			);
 			await this.performCompression();
@@ -600,7 +600,7 @@ export class ContextManager {
 		await this.updateTokenCount();
 		this.updateCompressionHistory(compressionResult);
 
-		logger.info(
+		logger.debug(
 			`[TokenAware] Compression completed: ${compressionResult.originalTokenCount} → ${compressionResult.compressedTokenCount} tokens`
 		);
 	}
@@ -668,6 +668,7 @@ export class ContextManager {
 					break;
 			}
 		}
+		logger.debug(`validateAndRepairMessageFlow: Orphaned tool messages: ${orphanedToolMessages}`);
 
 		// Silently remove orphaned tool messages to maintain OpenAI compatibility
 		// No logging needed as this is expected behavior for conversation repair

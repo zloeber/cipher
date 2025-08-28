@@ -658,28 +658,26 @@ export class UnifiedToolManager {
 	async getToolsForProvider(
 		provider: 'openai' | 'anthropic' | 'openrouter' | 'aws' | 'azure' | 'qwen' | 'gemini'
 	): Promise<any[]> {
-		logger.info(`UnifiedToolManager: Getting tools for provider: ${provider}`);
 		const allTools = await this.getAllTools();
-		logger.info(`UnifiedToolManager: Got ${Object.keys(allTools).length} total tools`);
 
 		switch (provider) {
 			case 'openai':
 			case 'openrouter':
-				logger.info('UnifiedToolManager: Formatting tools for OpenAI');
+				//logger.info('UnifiedToolManager: Formatting tools for OpenAI');
 				return this.formatToolsForOpenAI(allTools);
 			case 'qwen':
 				return this.formatToolsForOpenAI(allTools);
 			case 'gemini':
-				logger.info('UnifiedToolManager: Formatting tools for Gemini');
+				//logger.info('UnifiedToolManager: Formatting tools for Gemini');
 				return this.formatToolsForGemini(allTools);
 			case 'anthropic':
-				logger.info('UnifiedToolManager: Formatting tools for Anthropic');
+				//logger.info('UnifiedToolManager: Formatting tools for Anthropic');
 				return this.formatToolsForAnthropic(allTools);
 			case 'aws':
-				logger.info('UnifiedToolManager: Formatting tools for AWS (Anthropic-compatible)');
+				//logger.info('UnifiedToolManager: Formatting tools for AWS (Anthropic-compatible)');
 				return this.formatToolsForAnthropic(allTools); // AWS Bedrock uses Anthropic-compatible format
 			case 'azure':
-				logger.info('UnifiedToolManager: Formatting tools for Azure (OpenAI-compatible)');
+				//logger.info('UnifiedToolManager: Formatting tools for Azure (OpenAI-compatible)');
 				return this.formatToolsForOpenAI(allTools); // Azure OpenAI uses OpenAI-compatible format
 			default:
 				throw new Error(`Unsupported provider: ${provider}`);

@@ -1592,7 +1592,7 @@ export class ConversationSession {
 				serializedAt: Date.now(),
 			};
 
-			logger.info(`Session ${this.id}: Serialized with ${conversationHistory.length} messages`);
+			logger.debug(`Session ${this.id}: Serialized with ${conversationHistory.length} messages`);
 			return serialized;
 		} catch (error) {
 			throw new SessionPersistenceError(

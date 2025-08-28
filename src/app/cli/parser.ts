@@ -1,4 +1,5 @@
 import chalk from 'chalk';
+import process from 'process';
 import { MemAgent } from '@core/index.js';
 import { EnhancedPromptManager } from '@core/brain/systemPrompt/enhanced-manager.js';
 
@@ -394,6 +395,19 @@ export class CommandParser {
 					console.log(
 						`  ${chalk.gray('Session TTL:')} ${((config.sessions?.sessionTTL || 3600000) / 1000 / 60).toFixed(0)} minutes`
 					);
+					console.log('');
+
+					// Memory Profile
+					console.log(chalk.yellow('🧠 Memory Profile:'));
+					console.log(`  ${chalk.gray('Name:')} ${config.memoryProfile?.name || 'default'}`);
+					console.log(`  ${chalk.gray('Description:')} ${config.memoryProfile?.description || 'none'}`);
+					console.log('');
+
+					// Storage Configuration
+					console.log(chalk.yellow('🗄️  Storage Configuration:'));
+					console.log(`  ${chalk.gray('Storage Database Type:')} ${process.env.STORAGE_DATABASE_TYPE || 'in-memory'}`);
+					console.log(`  ${chalk.gray('Vector Database Type:')} ${process.env.VECTOR_STORE_TYPE || 'in-memory'}`);
+					console.log(`  ${chalk.gray('Cache Database Type:')} ${process.env.STORAGE_CACHE_TYPE || 'in-memory'}`);
 					console.log('');
 
 					// MCP Servers

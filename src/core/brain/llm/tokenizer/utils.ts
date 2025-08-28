@@ -140,7 +140,7 @@ export function createFallbackTokenCount(
  * Log token counting operation
  */
 export function logTokenCount(operation: string, count: TokenCount, context?: any): void {
-	logger.info(`Token counting: ${operation}`, {
+	logger.debug(`Token counting: ${operation}`, {
 		...count,
 		formatted: formatTokenCount(count),
 		...context,

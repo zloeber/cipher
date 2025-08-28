@@ -11,138 +11,17 @@
 # If not specified, please set it like this:
 mcpServers: {}
 
-# Choose ONLY ONE of the following LLM providers
 llm:
-  provider: openai
-  model: gpt-4.1-mini
-  apiKey: $OPENAI_API_KEY
+  provider: ollama
+  model: qwen3:8b      # Use the model you downloaded
   maxIterations: 50
+  baseURL: $OLLAMA_BASE_URL
 
-  # provider: gemini
-  # model: gemini-2.5-flash
-  # apiKey: $GEMINI_API_KEY
-  # maxIterations: 50
-
-  # provider: anthropic
-  # model: claude-3-5-haiku-20241022
-  # apiKey: $ANTHROPIC_API_KEY
-  # maxIterations: 50
-
-  # provider: openrouter
-  # model: google/gemini-2.5-pro
-  # apiKey: $OPENROUTER_API_KEY
-  # maxIterations: 50
-
-  # provider: qwen
-  # model: qwen3-14b
-  # apiKey: $QWEN_API_KEY
-  # maxIterations: 50
-  # qwenOptions:
-  #   enableThinking: false
-
-# --- AWS Bedrock LLM Configuration ---
-  # provider: aws
-  # model: us.anthropic.claude-3-5-sonnet-20241022-v2:0  # Or another Bedrock-supported model
-  # maxIterations: 50
-  # aws:
-  #   region: $AWS_REGION
-  #   accessKeyId: $AWS_ACCESS_KEY_ID
-  #   secretAccessKey: $AWS_SECRET_ACCESS_KEY
-  #   sessionToken: $AWS_SESSION_TOKEN   # Optional, for temporary credentials
-
-# --- Azure OpenAI LLM Configuration ---
-#   provider: azure
-#   model: gpt-4o-mini  # Or your Azure deployment/model name
-#   apiKey: $AZURE_OPENAI_API_KEY
-#   maxIterations: 50
-#   azure:
-#     endpoint: $AZURE_OPENAI_ENDPOINT
-#     deploymentName: gpt-4o-mini  # Optional, defaults to model name
-
-# --- Ollama LLM Configuration (Sample, Commented Out) ---
-  # provider: ollama
-  # model: qwen3:8b      # Use the model you downloaded
-  # maxIterations: 50
-  # baseURL: $OLLAMA_BASE_URL
-
-# --- LM Studio LLM Configuration (Sample, Commented Out) ---
-  # provider: lmstudio
-  # model: hermes-2-pro-llama-3-8b      # Use the model you have loaded
-  # maxIterations: 50
-  # baseURL: $LMSTUDIO_BASE_URL
-
-# Embedding configuration: ONLY ONE of the following
 embedding:
-  type: openai
-  model: text-embedding-3-small
-  apiKey: $OPENAI_API_KEY
-
-# Gemini:
-# embedding:
-#   type: gemini
-#   model: gemini-embedding-001
-#   apiKey: $GEMINI_API_KEY
-
-# Ollama:
-# embedding:
-#   type: ollama
-#   model: mxbai-embed-large
-#   baseUrl: $OLLAMA_BASE_URL
-#   dimensions: 1024
-
-# LM Studio:
-# embedding:
-#   type: lmstudio
-#   model: nomic-embed-text-v1.5
-#   baseUrl: $LMSTUDIO_BASE_URL
-
-# Voyage (for Anthropic/Claude users):
-# embedding:
-#   type: voyage
-#   model: voyage-3-large     #(1024, 256, 512, 2048)
-#   apiKey: $VOYAGE_API_KEY
-#   dimensions: 1024
-
-# Qwen:
-# embedding:
-#   type: qwen
-#   model: text-embedding-v3
-#   apiKey: $QWEN_API_KEY
-#   dimensions: 1024          # (1024, 768 or 512)
-
-# AWS Bedrock:
-# embedding:
-#   type: aws-bedrock
-#   model: amazon.titan-embed-text-v2:0   # or cohere.embed-english-v3
-#   region: $AWS_REGION
-#   accessKeyId: $AWS_ACCESS_KEY_ID
-#   secretAccessKey: $AWS_SECRET_ACCESS_KEY
-#   sessionToken: $AWS_SESSION_TOKEN       # Optional, for temporary credentials
-#   dimensions: 1024                       # 1024 (default), 512, or 256 for Titan V2
-#   timeout: 30000
-#   maxRetries: 3
-
-# Azure OpenAI:
-# embedding:
-#   type: openai
-#   model: text-embedding-3-small
-#   apiKey: $AZURE_OPENAI_API_KEY
-#   baseUrl: $AZURE_OPENAI_ENDPOINT        # e.g., https://your-resource.openai.azure.com
-#   dimensions: 1536                       # Optional: depends on model
-#   timeout: 30000
-#   maxRetries: 3
-
-# Disable embeddings entirely:
-# embedding:
-#   disabled: true
-
-
-
-# Evaluation LLM configuration (non-thinking model for evaluation step)
-# evalLlm:
-#   provider: anthropic
-#   model: claude-3-7-sonnet-20250219
-#   apiKey: $ANTHROPIC_API_KEY
+  type: ollama
+  model: mxbai-embed-large
+  baseUrl: $OLLAMA_BASE_URL
+  dimensions: 1024
 
 # System prompt - User customizable
 # This prompt will be combined with built-in tool usage instructions
@@ -157,8 +36,8 @@ systemPrompt:
     - Reasoning through programming challenges
 
 memoryProfile:
-  #name: default
-  #description: Default memory profile for general programming knowledge and decision retention.
+  name: default
+  description: Default memory profile for general programming knowledge and decision retention.
   prompts:
     system: |-
       You analyze programming knowledge facts and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
@@ -387,15 +266,14 @@ memoryProfile:
     testing: quality-assurance
     debug: quality-assurance
 
-  # extracted in order, first match wins
   extractablePatterns:
-    - pattern: "```[\\s\\S]*?```"
-    - pattern: "`[^`]+`"
-    - pattern: "\\$\\s+[^\\n]+"
-    - pattern: "(npm|yarn|pnpm)\\s+[^\\n]+"
-    - pattern: "(git)\\s+[^\\n]+"
-    - pattern: "(docker)\\s+[^\\n]+"
-    - pattern: "(curl|wget)\\s+[^\\n]+"
+    - pattern: /```[\s\S]*?```/
+    - pattern: /`[^`]+`/
+    - pattern: /\$\s+[^\n]+/
+    - pattern: /(npm|yarn|pnpm)\s+[^\n]+/
+    - pattern: /(git)\s+[^\n]+/
+    - pattern: /(docker)\s+[^\n]+/
+    - pattern: /(curl|wget)\s+[^\n]+/
 
   # Tags that are extracted from knowledge
   tagMap:
@@ -449,3 +327,161 @@ memoryProfile:
     endpoint: api
     request: api
     response: api
+    # name: personal_assistant
+    # description: Highly personal assistant and life coach profile for managing personal knowledge, goals, and emotional well-being.
+    # prompts:
+    #   system: |-
+    #     You analyze personal, emotional, and life management knowledge and decide ADD, UPDATE, DELETE, or NONE using similarity with existing memories and context.
+
+  #     Process only significant personal content (life events, goals, emotional states, reflections, habits, routines, preferences, and wellness strategies). Skip trivial or non-personal content.
+
+  #     Consider:
+  #     1) Personal relevance and value
+  #     2) Semantic similarity/overlap
+  #     3) Recency and contextual relevance
+  #     4) Quality and completeness
+  #     5) Conversation context and needs
+  #     6) Concrete details about personal experiences, goals, or emotional states
+
+  #     Rules:
+  #     - ADD: New, unique personal knowledge or insight
+  #     - UPDATE: Improves/corrects existing personal knowledge
+  #     - DELETE: Outdated/incorrect/contradictory information
+  #     - NONE: Duplicate, already covered, or non-significant
+
+  #     Always preserve full reflections, journal entries, or routines exactly as given.
+  # tools:
+  #   extract_knowledge:
+  #     description: Extract detailed personal knowledge, reflections, goals, emotional states, and wellness strategies from the interaction.
+  #     parameters:
+  #   knowledge: An array of strings, each containing a personal knowledge fact, reflection, or strategy. Always preserve the complete entry within triple backticks if present.
+  # skipPatterns:
+  #   # Technical or work-related content
+  #   - pattern: "\\b(function|method|class|module|library|framework|api|endpoint|database|sql|docker|kubernetes|git|commit|merge|branch|pull request|repository|deployment|code|programming|software|hardware|algorithm|debug|test|deploy|implement|configure|install|upgrade|migrate|scale|optimize|refactor)\\b"
+  #     flags: "i"
+  #   # Generic greetings and social niceties
+  #   - pattern: "^(hello|hi|hey|good morning|good afternoon|good evening|thanks|thank you|please|sorry|excuse me|bye|goodbye)\\b"
+  #     flags: "i"
+  #   # Simple yes/no or acknowledgment responses
+  #   - pattern: "^(yes|no|ok|okay|sure|fine|great|good|right|correct|wrong|true|false)\\s*[.!?]?\\s*$"
+  #     flags: "i"
+  #   # Status messages
+  #   - pattern: "^(task completed|operation successful|processing|loading|waiting|done|finished|ready)\\b"
+  #     flags: "i"
+  # keyPatterns:
+  #   # Personal life events and reflections
+  #   - pattern: "\\b(journal|diary|reflection|thought|feeling|emotion|mood|experience|memory|event|habit|routine|goal|plan|intention|aspiration|dream|wish|hope|fear|anxiety|stress|relax|meditate|mindfulness|gratitude|affirmation|self-care|wellness|health|exercise|sleep|nutrition|diet|relationship|family|friend|partner|love|support|motivation|growth|change|challenge|achievement|success|failure|lesson|insight|value|belief|priority|purpose|meaning|identity|self|confidence|esteem|acceptance|forgiveness|compassion|empathy|therapy|coach|counsel|advice|guidance|strategy|plan|routine|habit|tracker|log|entry|personal|private)\\b"
+  #     flags: "i"
+  #   # Emotional states and wellness
+  #   - pattern: "\\b(happy|sad|angry|anxious|calm|peaceful|excited|bored|lonely|connected|supported|overwhelmed|energized|tired|rested|motivated|discouraged|hopeful|hopeless|confident|insecure|grateful|resentful|jealous|proud|ashamed|guilty|relieved|worried|afraid|fearful|safe|unsafe|secure|insecure|loved|unloved|valued|unvalued)\\b"
+  #     flags: "i"
+  #   # Personal routines and habits
+  #   - pattern: "\\b(morning routine|evening routine|habit tracker|goal setting|progress|reflection|gratitude journal|affirmation|meditation|exercise|workout|sleep schedule|diet plan|meal plan|hydration|self-care|check-in|mood log|energy level|stress level|coping strategy|support system|therapy session|coaching session|personal growth|life balance|work-life balance|time management|priority list|to-do list|task list|reminder|motivation|reward|celebration|milestone|achievement|setback|obstacle|challenge|solution|plan|strategy|adjustment|review|insight|learning|lesson)\\b"
+  #     flags: "i"
+  #   # Personal code blocks (journaling, templates, etc.)
+  #   - pattern: "```[\\s\\S]*```"
+  #   - pattern: "`[^`]+`"
+  # commonPatterns:
+  #   # Punctuation and structure common in journaling or lists
+  #   - pattern: "[.,;:!?\\-]"
+  #   # Dates and times
+  #   - pattern: "\\b(\\d{4}-\\d{2}-\\d{2}|\\d{2}/\\d{2}/\\d{4}|today|yesterday|tomorrow|morning|afternoon|evening|night)\\b"
+  #     flags: "i"
+  #   # List markers
+  #   - pattern: "^\\s*[-*]\\s+"
+  #     flags: "m"
+  #   # Quotes or affirmations
+  #   - pattern: "\"[^\"]+\"|'[^']+'"
+  # wordPatterns:
+  #   - journal
+  #   - diary
+  #   - reflection
+  #   - feeling
+  #   - emotion
+  #   - mood
+  #   - experience
+  #   - memory
+  #   - event
+  #   - habit
+  #   - routine
+  #   - goal
+  #   - plan
+  #   - intention
+  #   - aspiration
+  #   - dream
+  #   - hope
+  #   - fear
+  #   - anxiety
+  #   - stress
+  #   - relax
+  #   - meditate
+  #   - mindfulness
+  #   - gratitude
+  #   - affirmation
+  #   - self-care
+  #   - wellness
+  #   - health
+  #   - exercise
+  #   - sleep
+  #   - nutrition
+  #   - diet
+  #   - relationship
+  #   - family
+  #   - friend
+  #   - partner
+  #   - love
+  #   - support
+  #   - motivation
+  #   - growth
+  #   - change
+  #   - challenge
+  #   - achievement
+  #   - success
+  #   - failure
+  #   - lesson
+  #   - insight
+  #   - value
+  #   - belief
+  #   - priority
+  #   - purpose
+  #   - meaning
+  #   - identity
+  #   - confidence
+  #   - esteem
+  #   - acceptance
+  #   - forgiveness
+  #   - compassion
+  #   - empathy
+  #   - therapy
+  #   - coach
+  #   - counsel
+  #   - advice
+  #   - guidance
+  #   - tracker
+  #   - log
+  #   - entry
+  #   - personal
+  #   - private
+  # domainTags:
+  #   journal: personal
+  #   diary: personal
+  #   reflection: personal
+  #   emotion: personal
+  #   mood: personal
+  #   goal: personal
+  #   habit: personal
+  #   routine: personal
+  #   wellness: personal
+  #   health: personal
+  #   relationship: personal
+  #   family: personal
+  #   friend: personal
+  #   partner: personal
+  #   therapy: personal
+  #   coach: personal
+  #   motivation: personal
+  #   growth: personal
+  #   mindfulness: personal
+  #   gratitude: personal
+  #   affirmation: personal
+  #   self-care: personal

@@ -113,3 +113,9 @@ tasks:
     cmds:
       - |
         node dist/src/app/index.cjs
+
+  test:
+    desc: Run tests
+    cmds:
+      - |
+        npm run test:unit

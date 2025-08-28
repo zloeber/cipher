@@ -383,7 +383,8 @@ export const memoryOperationTool: InternalTool = {
 			const embeddingManager = context?.services?.embeddingManager;
 			const vectorStoreManager = context?.services?.vectorStoreManager;
 			const llmService = context?.services?.llmService; // LLM service access
-
+			const memoryProfile =
+				context?.services?.stateManager?.getRuntimeConfig()?.memoryProfile;
 			let embedder: any = null;
 			let vectorStore: any = null;
 
@@ -423,8 +424,8 @@ export const memoryOperationTool: InternalTool = {
 			// Process each fact individually or in batch
 			for (let i = 0; i < validFacts.length; i++) {
 				const fact = validFacts[i];
-				const codePattern = extractCodePattern(fact || '');
-				const tags = extractTechnicalTags(fact || '');
+				const codePattern = extractFactPattern(fact || '', memoryProfile);
+				const tags = extractFactTags(fact || '', memoryProfile);
 
 				let memoryAction: MemoryAction;
 				let similarMemories: any[] = [];
@@ -1095,48 +1096,50 @@ function validateMemoryOperationArgs(args: MemoryOperationArgs): ValidationResul
 /**
  * Extract code pattern from fact content
  */
-function extractCodePattern(fact: string): string | undefined {
-	// Extract code blocks (```...```)
-	const codeBlockMatch = fact.match(/```[\s\S]*?```/);
-	if (codeBlockMatch) {
-		return codeBlockMatch[0];
-	}
+// function extractCodePattern(fact: string): string | undefined {
+// 	// Extract code blocks (```...```)
+// 	const codeBlockMatch = fact.match(/```[\s\S]*?```/);
+// 	if (codeBlockMatch) {
+// 		return codeBlockMatch[0];
+// 	}
 
-	// Extract inline code (`...`)
-	const inlineCodeMatch = fact.match(/`[^`]+`/);
-	if (inlineCodeMatch) {
-		return inlineCodeMatch[0];
-	}
+// 	// Extract inline code (`...`)
+// 	const inlineCodeMatch = fact.match(/`[^`]+`/);
+// 	if (inlineCodeMatch) {
+// 		return inlineCodeMatch[0];
+// 	}
 
-	// Extract command patterns (starting with $ or npm/git/etc)
-	const commandPatterns = [
-		/\$\s+[^\n]+/,
-		/(npm|yarn|pnpm)\s+[^\n]+/,
-		/(git)\s+[^\n]+/,
-		/(docker)\s+[^\n]+/,
-		/(curl|wget)\s+[^\n]+/,
-	];
+// 	// Extract command patterns (starting with $ or npm/git/etc)
+// 	const commandPatterns = [
+// 		/\$\s+[^\n]+/,
+// 		/(npm|yarn|pnpm)\s+[^\n]+/,
+// 		/(git)\s+[^\n]+/,
+// 		/(docker)\s+[^\n]+/,
+// 		/(curl|wget)\s+[^\n]+/,
+// 	];
 
-	for (const pattern of commandPatterns) {
-		const match = fact.match(pattern);
-		if (match) {
-			return match[0];
-		}
-	}
+// 	for (const pattern of commandPatterns) {
+// 		const match = fact.match(pattern);
+// 		if (match) {
+// 			return match[0];
+// 		}
+// 	}
 
-	return undefined;
-}
+// 	return undefined;
+// }
 
 /**
- * Extract custom fact pattern from fact content
+ * Extract custom fact pattern from fact content (first found)
  */
-function extractFactPattern(fact: string, customPatterns: RegExp[]): string | undefined {
-	if (!Array.isArray(customPatterns) || customPatterns.length === 0) {
-		return undefined;
-	}
-	for (const pattern of customPatterns) {
+function extractFactPattern(fact: string, profile: any): string | undefined {
+	const extractPatterns = (profile as any).extractablePatterns
+		? (profile as any).extractablePatterns.map(
+			({ pattern, flags }: { pattern: string; flags?: string }) => new RegExp(pattern, flags ?? "")
+		)
+		: [];
+	for (const pattern of extractPatterns) {
 		const match = fact.match(pattern);
-		if (match) {
+		if (match && match[0]) {
 			return match[0];
 		}
 	}
@@ -1146,134 +1149,142 @@ function extractFactPattern(fact: string, customPatterns: RegExp[]): string | un
 /**
  * Extract technical tags from fact content
  */
-function extractTechnicalTags(fact: string): string[] {
-	const tags: string[] = [];
+// function extractTechnicalTags(fact: string): string[] {
+// 	const tags: string[] = [];
 
-	// Programming languages
-	const languages = [
-		'javascript',
-		'typescript',
-		'python',
-		'java',
-		'rust',
-		'go',
-		'php',
-		'ruby',
-		'swift',
-		'kotlin',
-	];
-	languages.forEach(lang => {
-		if (fact.toLowerCase().includes(lang)) {
-			tags.push(lang);
-		}
-	});
+// 	// Programming languages
+// 	const languages = [
+// 		'javascript',
+// 		'typescript',
+// 		'python',
+// 		'java',
+// 		'rust',
+// 		'go',
+// 		'php',
+// 		'ruby',
+// 		'swift',
+// 		'kotlin',
+// 	];
+// 	languages.forEach(lang => {
+// 		if (fact.toLowerCase().includes(lang)) {
+// 			tags.push(lang);
+// 		}
+// 	});
 
-	// Frameworks and libraries
-	const frameworks = [
-		'react',
-		'vue',
-		'angular',
-		'svelte',
-		'nextjs',
-		'express',
-		'fastify',
-		'django',
-		'flask',
-	];
-	frameworks.forEach(framework => {
-		if (fact.toLowerCase().includes(framework)) {
-			tags.push(framework);
-		}
-	});
+// 	// Frameworks and libraries
+// 	const frameworks = [
+// 		'react',
+// 		'vue',
+// 		'angular',
+// 		'svelte',
+// 		'nextjs',
+// 		'next.js',
+// 		'express',
+// 		'fastify',
+// 		'django',
+// 		'flask',
+// 	];
+// 	frameworks.forEach(framework => {
+// 		if (fact.toLowerCase().includes(framework)) {
+// 			tags.push(framework);
+// 		}
+// 	});
 
-	// Tools and technologies
-	const tools = [
-		'docker',
-		'kubernetes',
-		'git',
-		'npm',
-		'yarn',
-		'webpack',
-		'vite',
-		'eslint',
-		'prettier',
-	];
-	tools.forEach(tool => {
-		if (fact.toLowerCase().includes(tool)) {
-			tags.push(tool);
-		}
-	});
+// 	// Tools and technologies
+// 	const tools = [
+// 		'docker',
+// 		'kubernetes',
+// 		'git',
+// 		'npm',
+// 		'yarn',
+// 		'webpack',
+// 		'vite',
+// 		'eslint',
+// 		'prettier',
+// 	];
+// 	tools.forEach(tool => {
+// 		if (fact.toLowerCase().includes(tool)) {
+// 			tags.push(tool);
+// 		}
+// 	});
 
-	// Content type tags
-	if (fact.includes('```')) {
-		tags.push('code-block');
-	}
-	if (
-		fact.includes('function') ||
-		fact.includes('class') ||
-		fact.includes('const') ||
-		fact.includes('let') ||
-		fact.includes('var')
-	) {
-		tags.push('programming');
-	}
-	if (
-		fact.includes('/') ||
-		fact.includes('\\') ||
-		fact.includes('.js') ||
-		fact.includes('.ts') ||
-		fact.includes('.py')
-	) {
-		tags.push('file-path');
-	}
-	if (
-		fact.includes('error') ||
-		fact.includes('exception') ||
-		fact.includes('failed') ||
-		fact.includes('bug')
-	) {
-		tags.push('error-handling');
-	}
-	if (fact.includes('config') || fact.includes('setting') || fact.includes('option')) {
-		tags.push('configuration');
-	}
-	if (
-		fact.includes('api') ||
-		fact.includes('endpoint') ||
-		fact.includes('request') ||
-		fact.includes('response')
-	) {
-		tags.push('api');
-	}
+// 	// Content type tags
+// 	if (fact.includes('```')) {
+// 		tags.push('code-block');
+// 	}
+// 	if (
+// 		fact.toLowerCase().includes('function') ||
+// 		fact.toLowerCase().includes('class') ||
+// 		fact.toLowerCase().includes('const') ||
+// 		fact.toLowerCase().includes('let') ||
+// 		fact.toLowerCase().includes('var')
+// 	) {
+// 		tags.push('programming');
+// 	}
+// 	if (
+// 		fact.includes('/') ||
+// 		fact.includes('\\') ||
+// 		fact.toLowerCase().includes('.js') ||
+// 		fact.toLowerCase().includes('.ts') ||
+// 		fact.toLowerCase().includes('.py')
+// 	) {
+// 		tags.push('file-path');
+// 	}
+// 	if (
+// 		fact.toLowerCase().includes('error') ||
+// 		fact.toLowerCase().includes('exception') ||
+// 		fact.toLowerCase().includes('failed') ||
+// 		fact.toLowerCase().includes('bug')
+// 	) {
+// 		tags.push('error-handling');
+// 	}
+// 	if (fact.toLowerCase().includes('config') ||
+// 		fact.toLowerCase().includes('setting') ||
+// 		fact.toLowerCase().includes('option')
+// 	) {
+// 		tags.push('configuration');
+// 	}
+// 	if (
+// 		fact.toLowerCase().includes('api') ||
+// 		fact.toLowerCase().includes('endpoint') ||
+// 		fact.toLowerCase().includes('request') ||
+// 		fact.toLowerCase().includes('response')
+// 	) {
+// 		tags.push('api');
+// 	}
 
-	// Add general tag if no specific patterns found
-	if (tags.length === 0) {
-		tags.push('general-knowledge');
-	}
+// 	// Add general tag if no specific patterns found
+// 	if (tags.length === 0) {
+// 		tags.push('general-knowledge');
+// 	}
 
-	// Remove duplicates and return lowercase singular nouns
-	return Array.from(new Set(tags)).map(tag => tag.toLowerCase());
-}
+// 	// Remove duplicates and return lowercase singular nouns
+// 	return Array.from(new Set(tags)).map(tag => tag.toLowerCase());
+// }
 
 /**
  * Extract technical tags from fact content
  */
-function extractFactTags(fact: string, tagMap: Record<string, string[]>): string[] {
+function extractFactTags(fact: string, profile: any): string[] {
 	const tags: string[] = [];
-
-	for (const [key, values] of Object.entries(tagMap)) {
-		values.forEach(value => {
-			if (fact.toLowerCase().includes(value)) {
-				tags.push(key);
+	const tagMap = (profile as any).tagMap;
+	if (!tagMap || typeof tagMap !== 'object') {
+		return tags;
+	}
+	const factLower = fact.toLowerCase();
+	for (const key of Object.keys(tagMap)) {
+		const keyLower = key.toLowerCase();
+		if (factLower.includes(keyLower)) {
+			const value = tagMap[key];
+			if (typeof value === 'string') {
+				tags.push(value);
 			}
-		});
+		}
 	}
-
 	// Add general tag if no specific patterns found
 	if (tags.length === 0) {
 		tags.push('general-knowledge');
 	}
-
 	// Remove duplicates and return lowercase singular nouns
 	return Array.from(new Set(tags)).map(tag => tag.toLowerCase());
 }
@@ -1569,4 +1580,4 @@ async function rewriteUserQuery(
 	}
 }
 
-export { parseLLMDecision, MEMORY_OPERATION_PROMPTS, extractTechnicalTags, rewriteUserQuery };
+export { parseLLMDecision, MEMORY_OPERATION_PROMPTS, rewriteUserQuery, extractFactTags, extractFactPattern };
